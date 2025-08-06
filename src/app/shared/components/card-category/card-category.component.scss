@@ -1,0 +1,13 @@
+.card-container {
+    background-color: white;
+    width: 130px;
+    height: 100px;
+    transition: background-color 0.3s ease, width 0.3s ease, height 0.3s ease;
+
+}
+
+.card-active {
+    background-color: #99ee92;
+    width: 140px;
+    height: 110px;
+}

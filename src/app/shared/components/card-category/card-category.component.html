@@ -1,0 +1,10 @@
+<div class="flex flex-row gap-3">
+    <div *ngFor="let item of categoryList" (click)="onCardClicked(item.id)" class="cursor-pointer card-container box-shadow p-3 border-round-2xl" [ngClass]="selectedCard == item.id ? 'card-active' : ''">
+        <span [ngClass]="'pi ' + item.icon + ' text-xl'"></span>
+        <div class="pt-3">
+            <label class="cursor-pointer font-bold">{{item?.name}}</label><br>
+            <label class="text-xs cursor-pointer">{{item.noOfItems}} items</label>
+        </div>
+    </div>
+
+</div>

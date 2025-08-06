@@ -1,0 +1,62 @@
+.card-container {
+    background-color: white;
+}
+.card-active {
+    background-color: #99ee92;
+}
+
+
+:host::ng-deep .add-to-cart-btn .p-button {
+    background-color: var(--secondary-base-color);
+    color: var(--primary-base-text-color);
+    font-size: 11px;
+    border-radius: 10px;
+    border: transparent;
+    width: 100%;
+}
+
+:host::ng-deep .add-to-cart-btn .p-button:active {
+    background-color: var(--secondary-base-color-light);
+}
+
+:host::ng-deep .add-to-cart-btn {
+    width: 100% !important;
+}
+
+:host::ng-deep .custom-input-number .p-inputtext {
+    width: 100% !important;
+}
+
+
+
+
+
+
+
+
+// .image-wrapper {
+//     width: 90px;
+//     height: 90px;
+// }
+
+// .card-container {
+//     background-color: white;
+// }
+
+// .product-image {
+//     height: 90px;
+//     width: 90px;
+//     object-fit: contain;
+// }
+// :host::ng-deep .add-to-cart-btn .p-button {
+//     background-color: var(--secondary-base-color);
+//     color: var(--primary-base-text-color);
+//     font-size: 11px;
+//     border-radius: 10px;
+//     border: transparent;
+//     width: 120px;
+// }
+
+// :host::ng-deep .add-to-cart-btn .p-button:active {
+//     background-color: var(--secondary-base-color-light);
+// }

@@ -1,0 +1,28 @@
+<div class="flex" style="height: 100vh; overflow: hidden;">
+  <div class="sidenav" [ngClass]="toggleSidenavStatus == 'MAX' ? 'sidenav-open': ''">
+    <app-sidenav [sidenavStatus]="toggleSidenavStatus"></app-sidenav>
+  </div>
+
+  <div class="main-container flex flex-column flex-1 h-full" style="background-color: var(--base-ground-color);">
+    <div class="py-4 px-4 flex justify-content-between">
+      <div>
+        <p-button icon="pi pi-bars" aria-label="Menu" class="menu-button" (onClick)="onMenuCLicked()" />
+      </div>
+      <div class="text-xl flex align-content-center justify-content-center">
+        <label class="flex align-items-center">
+          {{clock | date: 'shortTime'}}
+        </label>
+
+        <div class="ml-3">
+          <p-button rounded icon="pi pi-user" class="clock-in-btn" (onClick)="navigateToClockInPage()"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="router-outlet-wrapper overflow-hidden flex-1" style="background-color: var(--base-ground-color);">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>

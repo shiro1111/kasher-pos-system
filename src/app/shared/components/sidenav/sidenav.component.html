@@ -1,0 +1,37 @@
+<div style="height: 100vh;">
+
+    <div class="flex flex-column align-content-center justify-content-center w-full">
+        <div class="title align-content-center w-full flex justify-content-center my-5">
+            <label>KASHER</label>
+        </div>
+        <div [ngClass]="sidenavStatus == 'MAX' ? 'px-4' : 'min-sidenav-pad'" class="hai flex flex-column"
+            style=" height: 70vh;">
+            <div class="menu-list flex flex-column justify-content-center align-items-center cursor-pointer"
+                *ngFor="let item of sidenavMenu">
+                <div (click)="onMenuClicked(item)" [ngClass]="[currentActiveRoute === item.url ? 'tab-active' : '',
+                    sidenavStatus === 'MIN' ? 'justify-content-center' : '']"
+                    class="menu-button flex align-items-center mb-2 w-full border-round-2xl h-2rem px-3 py-4 ">
+                    <i [ngClass]="'pi ' + item.icon + ' text-sm'"></i>
+                    <div *ngIf="sidenavStatus == 'MAX'" class="pl-2 text-sm">{{item.title}}</div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <div [ngClass]="sidenavStatus == 'MAX' ? 'px-4' : 'min-sidenav-pad'">
+            <div class="staff-list flex flex-column justify-content-center align-items-center cursor-pointer"
+                *ngFor="let item of staffList">
+                <div (click)="onStaffClicked(item)"
+                    [ngClass]="[item.staffId === currentSelectedStaff ? 'staff-active' : '',
+                       sidenavStatus === 'MIN' ? 'justify-content-center' : '' 
+                    ]"
+                    class="menu-button flex align-items-center mb-2 w-full border-round-2xl h-2rem px-3 py-4">
+                    <i class="pi pi-user text-sm"></i>
+                    <div *ngIf="sidenavStatus == 'MAX'" class="pl-2 text-sm">{{item.staffName}}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

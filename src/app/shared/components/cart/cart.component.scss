@@ -1,0 +1,61 @@
+.footer {
+    position: absolute;
+    // top: 30%;
+    background-color: red;
+    bottom: 0;
+}
+
+:host::ng-deep .checkout-btn .p-button {
+width: 100%;
+}
+:host::ng-deep .checkout-btn {
+width: 100%;
+}
+
+.card-container {
+    border: 1px solid #cccccc;
+}
+
+:host::ng-deep .toggle-edit-button .p-button {
+    background-color: white;
+    color: black;
+    padding: 10px 19px;
+    border: transparent;
+}
+
+
+:host::ng-deep .toggle-edit-button .p-button:active {
+    background-color: var(--secondary-base-color-light);
+    color: black;
+}
+
+.active-pay-selection {
+    background-color: var(--secondary-base-color-light);
+    border: transparent;
+}
+.active-pay-label {
+    color: var(--primary-base-color);
+    font-weight: bold;
+}
+
+
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #bdbdbd; 
+  border-radius: 20px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}

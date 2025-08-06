@@ -1,0 +1,56 @@
+{
+    "staffList":[
+        {
+            "staffId": "hd-100",
+            "staffName": "Haura Aysha",
+            "password": "12345"
+        },
+        {
+            "staffId": "hd-101",
+            "staffName": "Haira Alisa",
+            "password":"54321"
+        }
+    ],
+    "categoryRes": [
+    
+        {
+            "name": "Donut",
+            "id": "donut",
+            "noOfItems": 14,
+            "icon": "pi-table"
+        },
+        {
+            "name": "Dessert",
+            "id": "dessert",
+            "noOfItems": 6,
+            "icon": "pi-table"
+        },
+        {
+            "name": "Drink",
+            "id": "drink",
+            "noOfItems": 6,
+            "icon": "pi-table"
+        }
+    ],
+    "donutPackageRes": [
+        {
+            "id": "1box",
+            "name": "1 Pcs box",
+            "type": "donut",
+            "price": 2.3
+        },
+        {
+            "id": "4box",
+            "name": "4 Pcs box",
+            "type": "donut",
+            "price": 12.4
+        },
+        {
+            "id": "6box",
+            "name": "6 Pcs box",
+            "type": "donut",
+            "price": 23.9
+        }
+    ]
+  
+}

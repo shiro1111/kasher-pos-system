@@ -1,0 +1,37 @@
+<div class="w-full flex flex-row">
+    <div style="width: 100%;" class="mb-2 card-container p-2 border-round-2xl">
+        <div class="grid">
+            <div class="col-3 flex align-content-center justify-content-center">
+                <div class="flex align-items-center" *ngIf="product">
+                    <img *ngIf="product.type == 'donut'" src="assets/image/donut-icon.png" height="40">
+                    <img *ngIf="product.type == 'drink'" src="assets/image/drink.png" height="40">
+                    <img *ngIf="product.type == 'dessert'" src="assets/image/dessert.png" height="40">
+                </div>
+                <div class="flex align-items-center" *ngIf="packaging">
+                    <img src="assets/image/box-icon.png" height="40">
+                </div>
+            </div>
+            <div [ngClass]="toggleEditMode ? 'col-7': 'col-9'">
+                <div class="pt-3">
+                    <div *ngIf="product">
+                        <label class="cursor-pointer font-bold">{{product.name}}</label><br>
+                        <label class="text-xs text-green-700 font-bold">RM{{product.price| number:
+                            '1.2-2'}}</label><br>
+                    </div>
+                    <div *ngIf="packaging">
+                        <label class="cursor-pointer font-bold">{{packaging.name}}</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-1 flex align-content-center cursor-pointer" *ngIf="toggleEditMode">
+                <div *ngIf="product" class="flex align-content-center justify-content-center" (click)="onRemoveProduct()">
+                    <span class="pi pi-times text-red-400"></span>
+                </div>
+                <div *ngIf="packaging" class="flex align-content-center justify-content-center" (click)="onRemovePackaging()">
+                    <span class="pi pi-times text-red-400"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

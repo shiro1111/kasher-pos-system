@@ -1,0 +1,30 @@
+/* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+
+
+:root {
+  
+  --primary-base-color: #1e8515;
+  --secondary-base-color: #99ee92;
+  --secondary-base-color-light: #9aee92b9;
+  --primary-base-text-color: #212121;
+  --base-ground-color: #f3f3f3;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #212121;
+    overflow: hidden;
+}
+
+
+.box-shadow {
+  box-shadow: 0px 9px 22px -5px rgba(150,150,150,0.75);
+  -webkit-box-shadow: 0px 9px 22px -5px rgba(150,150,150,0.75);
+  -moz-box-shadow: 0px 9px 22px -5px rgba(150,150,150,0.75) !important;
+}

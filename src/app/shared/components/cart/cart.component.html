@@ -1,0 +1,73 @@
+<div class="m-3 h-full flex flex-column">
+    <div class="flex-1 w-full">
+        <div class="flex justify-content-between align-content-center">
+            <div>
+                <label class="text-xl font-bold" (click)="check()">Cart</label><br>
+                <label class="text-sm">{{activeStaff?.staffName}}</label>
+            </div>
+            <div>
+                <div class="">
+                    <p-button rounded icon="pi pi-pencil" aria-label="Edit" class="toggle-edit-button"
+                        (onClick)="onEditCart()" *ngIf="!toggleEditMode" />
+                    <p-button severity="danger" label="Close" class="" (onClick)="onEditCart()"
+                        *ngIf="toggleEditMode" />
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full flex-1 overflow-y-auto mt-3 mb-3" style=" height: 46vh; ">
+            <app-card-on-cart *ngFor="let product of cart?.products" [product]="product"
+                [toggleEditMode]="toggleEditMode" (removeProduct)="onRemoveProduct($event)"></app-card-on-cart>
+            <app-card-on-cart *ngFor="let packaging of cart?.packaging" [packaging]="packaging"
+                [toggleEditMode]="toggleEditMode" (removePackaging)="onRemovePackaging($event)"></app-card-on-cart>
+        </div>
+    </div>
+
+    <div class="footer-container mb-5">
+        <!-- amount section -->
+        <div class="flex justify-content-between align-content-center p-3 border-round-2xl"
+            style="background-color: rgb(232, 232, 232);">
+            <div><label class="font-bold text-base"> Total Amount:</label></div>
+            <div><label class="font-bold text-base">RM{{cart?.totalPrice| number: '1.2-2'}}</label></div>
+        </div>
+        <!-- pay selection -->
+        <div class="grid my-2">
+            <div class="col-4">
+                <div (click)="onPayMethodClicked('cash')"
+                    class="border-round-2xl  border-1 border-gray-300 p-3 flex align-content-center justify-content-center cursor-pointer"
+                    [ngClass]="selectedPayMethod == 'cash' ? 'active-pay-selection' : ''">
+                    <span class="pi pi-money-bill text-xl"></span>
+                </div>
+                <div class="justify-content-center flex m-2 text-sm">
+                    <label [ngClass]="selectedPayMethod == 'cash' ? 'active-pay-label' : ''">Cash</label>
+                </div>
+            </div>
+            <div class="col-4">
+                <div (click)="onPayMethodClicked('qr')"
+                    class="border-round-2xl  border-1 border-gray-300 p-3 flex align-content-center justify-content-center cursor-pointer"
+                    [ngClass]="selectedPayMethod == 'qr' ? 'active-pay-selection' : ''">
+                    <span class="pi pi-qrcode text-xl"></span>
+                </div>
+                <div class="justify-content-center flex m-2 text-sm">
+                    <label [ngClass]="selectedPayMethod == 'qr' ? 'active-pay-label' : ''">QR</label>
+                </div>
+            </div>
+            <div class="col-4">
+                <div (click)="onPayMethodClicked('card')"
+                    [ngClass]="selectedPayMethod == 'card' ? 'active-pay-selection' : ''"
+                    class="border-round-2xl  border-1 border-gray-300 p-3 flex align-content-center justify-content-center cursor-pointer">
+                    <span class="pi pi-credit-card text-xl"></span>
+                </div>
+                <div class="justify-content-center flex m-2 text-sm">
+                    <label [ngClass]="selectedPayMethod == 'card' ? 'active-pay-label' : ''">Card</label>
+                </div>
+            </div>
+
+
+        </div>
+
+        <p-button severity="primary" class="checkout-btn" label="Checkout" (onClick)="onCheckOutClicked()"
+            [disabled]="!selectedPayMethod || !this.cart?.products?.length" />
+    </div>
+
+</div>
