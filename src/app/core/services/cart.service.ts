@@ -143,12 +143,13 @@ onConfirmPayment(selectedStaff: Staff | null): Observable<boolean> {
   cart = {
     ...cart,
     createdBy: selectedStaff?.staffName ?? ''
-  };
+  };  
 
   return new Observable<boolean>((observer) => {
-    this.apiService.addNewSalesRecord(cart).subscribe({
+    const products = cart?.products ?? [];
+    let stringId: string = products.map(p => p.id).join(', ');
+    this.apiService.addNewSalesRecord(cart, stringId).subscribe({
       next: (res) => {
-        console.log('res: ', res);
         if (res) {
           this.onSuccessPayment(cart, selectedStaff); // still run this
           observer.next(true); // return true
@@ -159,8 +160,6 @@ onConfirmPayment(selectedStaff: Staff | null): Observable<boolean> {
         }
       },
       error: (err) => {
-        console.log('get err: ', err);
-        this.alertService.showError('Failed to save payment', 'Please contact Admin for assistance!');
         observer.next(false);
         observer.complete();
       }

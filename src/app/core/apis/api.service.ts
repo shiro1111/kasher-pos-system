@@ -67,21 +67,26 @@ export class ApiService {
   }
 
   getSalesReportFor(date: Date) {
-
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0); // MYT 00:00
-
-    const endDate = new Date(date);
-    endDate.setHours(24, 0, 0, 0); // MYT 24:00 == next day 00:00
-
+    const startDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0, 0 // Start of the day in UTC
+    ));
+  
+    const endDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + 1,
+      0, 0, 0, 0 // Start of the next day in UTC
+    ));
+  
     return from(
       this.supabaseService.getSalesReportFor(startDate, endDate).then(res => {
         return this.convertResToCamelCase(res);
-
       })
-    )
+    );
   }
-
 
   getInventoryFor(type: string): Observable<any> {
     return from(
@@ -114,9 +119,9 @@ export class ApiService {
   }
 
 
-  addNewSalesRecord(cart: Cart): Observable<any> {
+  addNewSalesRecord(cart: Cart, stringId: string): Observable<any> {
     return from(
-      this.supabaseService.addNewSalesRecord(cart).then(res => {
+      this.supabaseService.addNewSalesRecord(cart, stringId).then(res => {
         return res;
       })
     )

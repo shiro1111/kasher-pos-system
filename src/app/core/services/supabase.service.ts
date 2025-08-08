@@ -71,8 +71,6 @@ export class SupabaseService {
   }
 
   getSalesReportFor(startDate: Date, endDate: Date) {
-    console.log('Start UTC:', startDate.toISOString());
-    console.log('End UTC:', endDate.toISOString());
     return this.supabase
       .from(TABLE.SALES_REPORT)
       .select(ALL)
@@ -98,13 +96,15 @@ export class SupabaseService {
     return true;
   }
 
-  async addNewSalesRecord(cart: Cart) {
+  async addNewSalesRecord(cart: Cart, stringId: string) {
     const { error, data: result } = await this.supabase
       .from(TABLE.SALES_REPORT)
       .insert([{
         created_by: cart.createdBy,
         payment_method: cart.paymentMethod,
         total_price: cart.totalPrice,
+        products_id: stringId,
+
       }]);
 
     if (error) {
