@@ -70,6 +70,15 @@ export class SupabaseService {
       .select(ALL)
   }
 
+  getSalesReportByStaff(staff: Staff, startDate?: Date, endDate?: Date) {
+    return this.supabase
+    .from(TABLE.SALES_REPORT)
+      .select('created_at,total_price,payment_method,products_id,created_by')
+      .eq('created_by', staff.staffName)
+      .gte('created_at', startDate?.toISOString())
+      .lt('created_at', endDate?.toISOString());
+  }
+  
   getSalesReportFor(startDate: Date, endDate: Date) {
     return this.supabase
       .from(TABLE.SALES_REPORT)

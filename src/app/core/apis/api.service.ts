@@ -60,12 +60,6 @@ export class ApiService {
     )
   }
 
-  test(date: Date) {
-    const url = 'https://pnhwnqerfbupzqrcjlkf.supabase.co/functions/v1/hyper-service'
-    return this.http.post(url, { date });
-
-  }
-
   getSalesReportFor(date: Date) {
     const startDate = new Date(Date.UTC(
       date.getFullYear(),
@@ -73,14 +67,14 @@ export class ApiService {
       date.getDate(),
       0, 0, 0, 0 // Start of the day in UTC
     ));
-  
+
     const endDate = new Date(Date.UTC(
       date.getFullYear(),
       date.getMonth(),
       date.getDate() + 1,
       0, 0, 0, 0 // Start of the next day in UTC
     ));
-  
+
     return from(
       this.supabaseService.getSalesReportFor(startDate, endDate).then(res => {
         return this.convertResToCamelCase(res);
@@ -118,6 +112,26 @@ export class ApiService {
     )
   }
 
+  getSalesReportByStaff(staff: Staff, date: Date): Observable<SBResponse> {
+    const startDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0, 0
+    ));
+
+    const endDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + 1,
+      0, 0, 0, 0 
+    ));
+    return from(
+      this.supabaseService.getSalesReportByStaff(staff, startDate, endDate).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
 
   addNewSalesRecord(cart: Cart, stringId: string): Observable<any> {
     return from(
