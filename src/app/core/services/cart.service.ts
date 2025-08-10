@@ -161,7 +161,7 @@ export class CartService {
 
   private onSuccessPayment(cart: Cart, selectedStaff: Staff | null) {
     if (cart?.paymentMethod === 'cash') {
-      // this.addCashPaymentToCashRecord(cart.totalPrice, selectedStaff);
+      this.addCashPaymentToCashRecord(cart.totalPrice, selectedStaff);
     }
 
     const products: Product[] = cart?.products ?? [];
