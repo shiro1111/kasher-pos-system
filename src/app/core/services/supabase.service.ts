@@ -26,6 +26,12 @@ export class SupabaseService {
     this.supabase = createClient(Environment.supabaseUrl, Environment.apiKey);
   }
 
+  getCashRecordHistory() {
+    return this.supabase
+    .from(TABLE.CASH_RECORD)
+      .select(ALL)
+
+  }
   getAllStaff() {
     return this.supabase
       .from(TABLE.STAFF)

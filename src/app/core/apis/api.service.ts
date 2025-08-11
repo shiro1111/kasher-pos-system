@@ -18,6 +18,14 @@ export class ApiService {
     return of(data.categoryRes);
   }
 
+  getCashRecordHistory(): Observable<SBResponse> {
+    return from(
+      this.supabaseService.getCashRecordHistory().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+  
   getAllProducts(): Observable<SBResponse> {
     return from(
       this.supabaseService.getAllProducts().then(res => {
