@@ -18,6 +18,34 @@ export class ApiService {
     return of(data.categoryRes);
   }
 
+  loadPage(page: number, pageSize: number): Observable<SBResponse> {
+    const fromPage = (page - 1) * pageSize;
+    const toPage = fromPage + pageSize - 1;
+    return from(
+      this.supabaseService.getCashRecordHistoryPaginated(fromPage, toPage).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  // loadPage(page: number, pageSize: number): Observable<SBResponse> {
+  //   const from = (page - 1) * pageSize;
+  //   const to = from + pageSize - 1;
+  //   return from(
+  //     this.supabaseService.getCashRecordHistory().then(res => {
+  //       return this.convertResToCamelCase(res);
+  //     })
+  //   )
+  //   // return from(
+  //   //   this.supabaseService.getCashRecordHistoryPaginated(from, to).then(data => {
+
+  //   //     return this.convertResToCamelCase(data);
+  //   //     // this.cashRecordHistory = data;
+  //   //   })
+  //   // )
+
+  // }
+
   getCashRecordHistory(): Observable<SBResponse> {
     return from(
       this.supabaseService.getCashRecordHistory().then(res => {
@@ -25,7 +53,15 @@ export class ApiService {
       })
     )
   }
-  
+
+  // getCashRecordHistoryPaginated(page: number, pageSize: number): Observable<SBResponse> {
+  //   return from(
+  //     this.supabaseService.getCashRecordHistory().then(res => {
+  //       return this.convertResToCamelCase(res);
+  //     })
+  //   )
+  // }
+
   getAllProducts(): Observable<SBResponse> {
     return from(
       this.supabaseService.getAllProducts().then(res => {
@@ -132,7 +168,7 @@ export class ApiService {
       date.getFullYear(),
       date.getMonth(),
       date.getDate() + 1,
-      0, 0, 0, 0 
+      0, 0, 0, 0
     ));
     return from(
       this.supabaseService.getSalesReportByStaff(staff, startDate, endDate).then(res => {

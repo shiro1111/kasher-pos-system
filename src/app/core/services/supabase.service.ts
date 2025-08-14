@@ -28,10 +28,20 @@ export class SupabaseService {
 
   getCashRecordHistory() {
     return this.supabase
-    .from(TABLE.CASH_RECORD)
+      .from(TABLE.CASH_RECORD)
       .select(ALL)
-
+      .limit(5)
+      .order('created_at', { ascending: false });
   }
+
+  getCashRecordHistoryPaginated(from: number, to: number) {
+    return this.supabase
+      .from(TABLE.CASH_RECORD)
+      .select(ALL)
+      .order('created_at', { ascending: false }) // latest first
+      .range(from, to);
+  }
+
   getAllStaff() {
     return this.supabase
       .from(TABLE.STAFF)
@@ -78,19 +88,20 @@ export class SupabaseService {
 
   getSalesReportByStaff(staff: Staff, startDate?: Date, endDate?: Date) {
     return this.supabase
-    .from(TABLE.SALES_REPORT)
+      .from(TABLE.SALES_REPORT)
       .select('created_at,total_price,payment_method,products_id,created_by')
       .eq('created_by', staff.staffName)
       .gte('created_at', startDate?.toISOString())
       .lt('created_at', endDate?.toISOString());
   }
-  
+
   getSalesReportFor(startDate: Date, endDate: Date) {
     return this.supabase
       .from(TABLE.SALES_REPORT)
       .select(ALL)
       .gte('created_at', startDate.toISOString())
-      .lt('created_at', endDate.toISOString());
+      .lt('created_at', endDate.toISOString())
+      .order('created_at', { ascending: true });
   }
 
   async addNewCashRecord(data: CashRecordRequest) {
