@@ -26,6 +26,22 @@ export class SupabaseService {
     this.supabase = createClient(Environment.supabaseUrl, Environment.apiKey);
   }
 
+  getCashRecordHistory() {
+    return this.supabase
+      .from(TABLE.CASH_RECORD)
+      .select(ALL)
+      .limit(5)
+      .order('created_at', { ascending: false });
+  }
+
+  getCashRecordHistoryPaginated(from: number, to: number) {
+    return this.supabase
+      .from(TABLE.CASH_RECORD)
+      .select(ALL)
+      .order('created_at', { ascending: false }) // latest first
+      .range(from, to);
+  }
+
   getAllStaff() {
     return this.supabase
       .from(TABLE.STAFF)
@@ -70,14 +86,22 @@ export class SupabaseService {
       .select(ALL)
   }
 
+  getSalesReportByStaff(staff: Staff, startDate?: Date, endDate?: Date) {
+    return this.supabase
+      .from(TABLE.SALES_REPORT)
+      .select('created_at,total_price,payment_method,products_id,created_by')
+      .eq('created_by', staff.staffName)
+      .gte('created_at', startDate?.toISOString())
+      .lt('created_at', endDate?.toISOString());
+  }
+
   getSalesReportFor(startDate: Date, endDate: Date) {
-    console.log('Start UTC:', startDate.toISOString());
-    console.log('End UTC:', endDate.toISOString());
     return this.supabase
       .from(TABLE.SALES_REPORT)
       .select(ALL)
       .gte('created_at', startDate.toISOString())
-      .lt('created_at', endDate.toISOString());
+      .lt('created_at', endDate.toISOString())
+      .order('created_at', { ascending: true });
   }
 
   async addNewCashRecord(data: CashRecordRequest) {
@@ -98,13 +122,15 @@ export class SupabaseService {
     return true;
   }
 
-  async addNewSalesRecord(cart: Cart) {
+  async addNewSalesRecord(cart: Cart, stringId: string) {
     const { error, data: result } = await this.supabase
       .from(TABLE.SALES_REPORT)
       .insert([{
         created_by: cart.createdBy,
         payment_method: cart.paymentMethod,
         total_price: cart.totalPrice,
+        products_id: stringId,
+
       }]);
 
     if (error) {

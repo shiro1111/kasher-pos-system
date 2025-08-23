@@ -18,6 +18,50 @@ export class ApiService {
     return of(data.categoryRes);
   }
 
+  loadPage(page: number, pageSize: number): Observable<SBResponse> {
+    const fromPage = (page - 1) * pageSize;
+    const toPage = fromPage + pageSize - 1;
+    return from(
+      this.supabaseService.getCashRecordHistoryPaginated(fromPage, toPage).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  // loadPage(page: number, pageSize: number): Observable<SBResponse> {
+  //   const from = (page - 1) * pageSize;
+  //   const to = from + pageSize - 1;
+  //   return from(
+  //     this.supabaseService.getCashRecordHistory().then(res => {
+  //       return this.convertResToCamelCase(res);
+  //     })
+  //   )
+  //   // return from(
+  //   //   this.supabaseService.getCashRecordHistoryPaginated(from, to).then(data => {
+
+  //   //     return this.convertResToCamelCase(data);
+  //   //     // this.cashRecordHistory = data;
+  //   //   })
+  //   // )
+
+  // }
+
+  getCashRecordHistory(): Observable<SBResponse> {
+    return from(
+      this.supabaseService.getCashRecordHistory().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  // getCashRecordHistoryPaginated(page: number, pageSize: number): Observable<SBResponse> {
+  //   return from(
+  //     this.supabaseService.getCashRecordHistory().then(res => {
+  //       return this.convertResToCamelCase(res);
+  //     })
+  //   )
+  // }
+
   getAllProducts(): Observable<SBResponse> {
     return from(
       this.supabaseService.getAllProducts().then(res => {
@@ -60,28 +104,27 @@ export class ApiService {
     )
   }
 
-  test(date: Date) {
-    const url = 'https://pnhwnqerfbupzqrcjlkf.supabase.co/functions/v1/hyper-service'
-    return this.http.post(url, { date });
-
-  }
-
   getSalesReportFor(date: Date) {
+    const startDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0, 0 // Start of the day in UTC
+    ));
 
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0); // MYT 00:00
-
-    const endDate = new Date(date);
-    endDate.setHours(24, 0, 0, 0); // MYT 24:00 == next day 00:00
+    const endDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + 1,
+      0, 0, 0, 0 // Start of the next day in UTC
+    ));
 
     return from(
       this.supabaseService.getSalesReportFor(startDate, endDate).then(res => {
         return this.convertResToCamelCase(res);
-
       })
-    )
+    );
   }
-
 
   getInventoryFor(type: string): Observable<any> {
     return from(
@@ -113,10 +156,30 @@ export class ApiService {
     )
   }
 
+  getSalesReportByStaff(staff: Staff, date: Date): Observable<SBResponse> {
+    const startDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0, 0
+    ));
 
-  addNewSalesRecord(cart: Cart): Observable<any> {
+    const endDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + 1,
+      0, 0, 0, 0
+    ));
     return from(
-      this.supabaseService.addNewSalesRecord(cart).then(res => {
+      this.supabaseService.getSalesReportByStaff(staff, startDate, endDate).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  addNewSalesRecord(cart: Cart, stringId: string): Observable<any> {
+    return from(
+      this.supabaseService.addNewSalesRecord(cart, stringId).then(res => {
         return res;
       })
     )

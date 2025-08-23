@@ -12,33 +12,34 @@ export class CashRecordService {
     private apiService: ApiService,
   ) { }
 
-submitCashInCashOut(data: CashRecordRequest): Observable<any> {
-  return this.apiService.getLatestCashAmount().pipe(
-    switchMap((res: any) => {
-      const currentAmount = res.data.totalAmount;
-      const newAmount = data.recordAmount;
+  submitCashInCashOut(data: CashRecordRequest): Observable<any> {
+    return this.apiService.getLatestCashAmount().pipe(
+      switchMap((res: any) => {
+        const currentAmount = res.data.totalAmount;
+        const newAmount = data.recordAmount;
 
-      let newTotalAmount = 0;
-      if (data.recordFrom === 'cashIn' || data.recordFrom == 'payment') {
-        newTotalAmount = currentAmount + newAmount;
-      } else if (data.recordFrom === 'cashOut') {
-        newTotalAmount = currentAmount - newAmount;
-      }
+        let newTotalAmount = 0;
+        if (data.recordFrom === 'cashIn' || data.recordFrom == 'payment') {
+          newTotalAmount = currentAmount + newAmount;
+        } else if (data.recordFrom === 'cashOut') {
+          newTotalAmount = currentAmount - newAmount;
+        }
 
-      const newRecord: CashRecordRequest = {
-        totalAmount: newTotalAmount,
-        createdBy: data.createdBy,
-        recordAmount: newAmount,
-        recordFrom: data.recordFrom,
-        remark: data.remark
-      };
+        const newRecord: CashRecordRequest = {
+          totalAmount: newTotalAmount,
+          createdBy: data.createdBy,
+          recordAmount: newAmount,
+          recordFrom: data.recordFrom,
+          remark: data.remark
+        };
 
-      return this.apiService.addNewCashRecord(newRecord);
-    }),
-    catchError(error => {
-      console.error('Failed to submit cash record', error);
-      return of(false); // fallback
-    })
-  );
-}
+        return this.apiService.addNewCashRecord(newRecord);
+      }),
+      catchError(error => {
+        console.error('Failed to submit cash record', error);
+        return of(false); // fallback
+      })
+    );
+  }
+
 }

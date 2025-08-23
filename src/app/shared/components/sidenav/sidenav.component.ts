@@ -21,6 +21,7 @@ export class SidenavComponent {
     { title: 'Inventory', url: 'inventory', icon: 'pi-database' },
     { title: 'Cashier', url: 'cashier', icon: 'pi-dollar' },
     { title: 'Sales report', url: 'sales-report', icon: 'pi-chart-line' },
+    { title: 'Analytics', url: 'analytics', icon: 'pi-desktop' },
     { title: 'Settings', url: 'settings', icon: 'pi-cog' },
   ]
   selectedMenu: string = 'menu';

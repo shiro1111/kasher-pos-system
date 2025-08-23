@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, combineLatest, forkJoin, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, forkJoin, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { Cart, CashRecordRequest, Inventory, Packaging, Product, SBResponse, Staff } from '../interfaces/interface';
 import { CashRecordService } from './cash-record.service';
 import { InventoryService } from './inventory.service';
@@ -138,116 +138,107 @@ export class CartService {
     this.apiService.getInventoryQuantityAndIdAndType();
   }
 
-onConfirmPayment(selectedStaff: Staff | null): Observable<boolean> {
-  let cart = this._cart.value ?? this.createEmptyCartData();
-  cart = {
-    ...cart,
-    createdBy: selectedStaff?.staffName ?? ''
-  };
+  onConfirmPayment(selectedStaff: Staff | null): Observable<boolean> {
+    let cart = this._cart.value ?? this.createEmptyCartData();
+    cart = {
+      ...cart,
+      createdBy: selectedStaff?.staffName ?? ''
+    };
 
-  return new Observable<boolean>((observer) => {
-    this.apiService.addNewSalesRecord(cart).subscribe({
-      next: (res) => {
-        console.log('res: ', res);
+    const products = cart?.products ?? [];
+    let stringId: string = products.map(p => p.id).join(', ');
+
+    return this.apiService.addNewSalesRecord(cart, stringId).pipe(
+      take(1),
+      tap((res) => {
         if (res) {
-          this.onSuccessPayment(cart, selectedStaff); // still run this
-          observer.next(true); // return true
-          observer.complete();
-        } else {
-          observer.next(false);
-          observer.complete();
+          this.onSuccessPayment(cart, selectedStaff);
         }
-      },
-      error: (err) => {
-        console.log('get err: ', err);
-        this.alertService.showError('Failed to save payment', 'Please contact Admin for assistance!');
-        observer.next(false);
-        observer.complete();
-      }
+      }),
+      map((res) => !!res) // convert truthy/falsy to boolean
+    );
+  }
+
+  private onSuccessPayment(cart: Cart, selectedStaff: Staff | null) {
+    if (cart?.paymentMethod === 'cash') {
+      this.addCashPaymentToCashRecord(cart.totalPrice, selectedStaff);
+    }
+
+    const products: Product[] = cart?.products ?? [];
+
+    this.apiService.getInventoryQuantityAndIdAndType().subscribe((res: SBResponse) => {
+      const inventory = res.data;
+      this.deductTheStockfromInventory(cart, inventory);
+      return
     });
-  });
-}
-
-private onSuccessPayment(cart: Cart, selectedStaff: Staff | null) {
-  if (cart?.paymentMethod === 'cash') {
-    // this.addCashPaymentToCashRecord(cart.totalPrice, selectedStaff);
   }
 
-  const products: Product[] = cart?.products ?? [];
 
-  this.apiService.getInventoryQuantityAndIdAndType().subscribe((res: SBResponse) => {
-    const inventory = res.data;
-    this.deductTheStockfromInventory(cart, inventory);
-    return 
-  });
-}
+  private deductTheStockfromInventory(cart: Cart, inventory: any[]) {
+    const quantityByType: { [type: string]: number } = {};
 
+    // 1. Group total quantity needed per product type (from cart.products)
+    for (const product of cart?.products ?? []) {
+      quantityByType[product.type] = (quantityByType[product.type] || 0) + product.itemQuantity;
+    }
 
-private deductTheStockfromInventory(cart: Cart, inventory: any[]) {
-  const quantityByType: { [type: string]: number } = {};
+    console.log('Total quantity to deduct by type (products):', quantityByType);
 
-  // 1. Group total quantity needed per product type (from cart.products)
-  for (const product of cart?.products ?? []) {
-    quantityByType[product.type] = (quantityByType[product.type] || 0) + product.itemQuantity;
-  }
+    // 2. Deduct from matching inventory items by type (for products)
+    for (const type in quantityByType) {
+      let remainingToDeduct = quantityByType[type];
 
-  console.log('Total quantity to deduct by type (products):', quantityByType);
+      const matchingInventories = inventory.filter(i => i.type === type && i.quantity > 0);
 
-  // 2. Deduct from matching inventory items by type (for products)
-  for (const type in quantityByType) {
-    let remainingToDeduct = quantityByType[type];
+      for (const inv of matchingInventories) {
+        if (remainingToDeduct <= 0) break;
 
-    const matchingInventories = inventory.filter(i => i.type === type && i.quantity > 0);
+        const deduction = Math.min(inv.quantity, remainingToDeduct);
+        const newQuantity = inv.quantity - deduction;
 
-    for (const inv of matchingInventories) {
-      if (remainingToDeduct <= 0) break;
+        this.apiService.updateInventory(inv, newQuantity).subscribe({
+          next: () => {
+            console.log(`Updated inventory ID ${inv.id} (type: ${type}) from ${inv.quantity} to ${newQuantity}`);
+          },
+          error: (err) => {
+            console.error(`Failed to update inventory ID ${inv.id}`, err);
+          }
+        });
 
-      const deduction = Math.min(inv.quantity, remainingToDeduct);
-      const newQuantity = inv.quantity - deduction;
+        remainingToDeduct -= deduction;
+      }
+
+      if (remainingToDeduct > 0) {
+        console.warn(`Not enough inventory to fulfill deduction for type: ${type}. Remaining: ${remainingToDeduct}`);
+      }
+    }
+
+    // 3. Deduct packaging (by exact inventory ID)
+    for (const packaging of cart?.packaging ?? []) {
+      const inv = inventory.find(i => i.id === packaging.id && i.type === 'box');
+
+      if (!inv) {
+        console.warn(`No matching inventory found for packaging ID ${packaging.id}`);
+        continue;
+      }
+
+      if (inv.quantity <= 0) {
+        console.warn(`Inventory ID ${inv.id} has zero quantity, can't deduct for packaging.`);
+        continue;
+      }
+
+      const newQuantity = inv.quantity - 1; // Always deduct 1 per packaging
 
       this.apiService.updateInventory(inv, newQuantity).subscribe({
         next: () => {
-          console.log(`Updated inventory ID ${inv.id} (type: ${type}) from ${inv.quantity} to ${newQuantity}`);
+          console.log(`Deducted 1 from packaging (box) ID ${inv.id}, new quantity: ${newQuantity}`);
         },
         error: (err) => {
-          console.error(`Failed to update inventory ID ${inv.id}`, err);
+          console.error(`Failed to update packaging inventory ID ${inv.id}`, err);
         }
       });
-
-      remainingToDeduct -= deduction;
-    }
-
-    if (remainingToDeduct > 0) {
-      console.warn(`Not enough inventory to fulfill deduction for type: ${type}. Remaining: ${remainingToDeduct}`);
     }
   }
-
-  // 3. Deduct packaging (by exact inventory ID)
-  for (const packaging of cart?.packaging ?? []) {
-    const inv = inventory.find(i => i.id === packaging.id && i.type === 'box');
-
-    if (!inv) {
-      console.warn(`No matching inventory found for packaging ID ${packaging.id}`);
-      continue;
-    }
-
-    if (inv.quantity <= 0) {
-      console.warn(`Inventory ID ${inv.id} has zero quantity, can't deduct for packaging.`);
-      continue;
-    }
-
-    const newQuantity = inv.quantity - 1; // Always deduct 1 per packaging
-
-    this.apiService.updateInventory(inv, newQuantity).subscribe({
-      next: () => {
-        console.log(`Deducted 1 from packaging (box) ID ${inv.id}, new quantity: ${newQuantity}`);
-      },
-      error: (err) => {
-        console.error(`Failed to update packaging inventory ID ${inv.id}`, err);
-      }
-    });
-  }
-}
 
 
   private addCashPaymentToCashRecord(totalPrice: number, selectedStaff: Staff | null) {
