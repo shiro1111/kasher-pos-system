@@ -5,6 +5,7 @@ import { ButtonModule } from "primeng/button";
 import { CommonModule } from '@angular/common';
 import { interval, Subscription } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
+import { SIDENAV_STATUS_KEY } from '../../../core/constants/constanst';
 
 @Component({
   selector: 'app-layout',
@@ -20,11 +21,18 @@ export class LayoutComponent {
 
   constructor(private router: Router) {
     this.getClock();
+    this.getToggleSidenavStatus();
+
 
   }
 
+  getToggleSidenavStatus() {
+    const status = sessionStorage.getItem(SIDENAV_STATUS_KEY);
+    this.toggleSidenavStatus = status ? status as 'MAX' | 'MIN' : 'MAX';
+  }
   onMenuCLicked() {
     this.toggleSidenavStatus = this.toggleSidenavStatus == 'MAX' ? 'MIN' : 'MAX';
+    sessionStorage.setItem(SIDENAV_STATUS_KEY, this.toggleSidenavStatus);
   }
 
   getClock() {
