@@ -1,0 +1,83 @@
+<div class="flex w-full h-full">
+    <div class="left-side">
+        <div class="pt-8 px-5 text-white">
+            <div>
+                {{clock | date: 'EEEE'}}
+                {{clock | date: 'MMMM'}}
+                {{clock | date: 'dd'}}
+            </div>
+
+            <div class="mt-1 text-7xl">
+                {{getTime()}}
+                <span class="text-base">
+                    {{clock | date: 'a'}}
+                </span>
+            </div>
+        </div>
+
+        <div style="position: absolute; bottom: 0;" class="py-4 px-5 text-white text-2xl">
+
+            <div class="mb-4">
+                <div class="staff-list flex flex-column justify-content-center align-items-center cursor-pointer"
+                    *ngFor="let item of staffList">
+                    <div (click)="onStaffClicked(item)"
+                        [ngClass]="[item.staffId === currentSelectedStaff ? 'staff-active' : '']"
+                        class="menu-button flex align-items-center mb-2 w-full border-round-2xl h-2rem px-3 py-4">
+                        <i class="pi pi-user text-sm"></i>
+                        <div class="pl-2 text-sm">{{item.staffName}}</div>
+                    </div>
+                </div>
+            </div>
+            <label>
+                Kasher
+            </label>
+        </div>
+    </div>
+    <div class="right-side w-full flex align-content-end flex-column">
+        <div>
+            <label *ngIf="!selectedStaff" class="w-full flex justify-content-center mt-7 text-5xl font-bold">Welcome to Kasher POS System </label>
+            <label *ngIf="selectedStaff" class="w-full flex justify-content-center mt-7 text-5xl font-bold">Good morning,
+                {{selectedStaff.staffName}}!</label>
+            <label *ngIf="!selectedStaff" class="w-full flex justify-content-center text-lg mt-2">Please select your profile</label>
+            <label *ngIf="selectedStaff" class="w-full flex justify-content-center text-lg mt-2">Let's get to work.</label>
+        </div>
+        <div class="flex justify-content-center mt-4">
+            <div class="user-picture flex justify-content-center align-items-center border-circle">
+                <span class="pi pi-user text-sm "></span>
+            </div>
+        </div>
+
+        <!-- clock in section -->
+
+        <div class="flex justify-content-center align-items-start mt-5" style="height: 10rem"
+            *ngIf="currentStatus == LoggedStatus.CLOCK_IN">
+            <div class="flex flex-column justify-content-center">
+                <p-button [disabled]="!currentSelectedStaff" *ngIf="!showLoginInput" class="c-button border-circle"
+                    label="Clock-in" (onClick)="onClockInBtnClicked()" />
+                <div *ngIf="showLoginInput" class="">
+                    <input type="password" pInputText [(ngModel)]="password" class="password-input" />
+                    <p-button icon="pi pi-arrow-right" class="login-btn" rounded (onClick)="onClockIn()" />
+                </div>
+            </div>
+
+        </div>
+
+        <!-- clock out section -->
+        <div class="flex justify-content-center align-items-start mt-5" style="height: 10rem"
+            *ngIf="currentStatus == LoggedStatus.CLOCK_OUT">
+            <div class="flex flex-column justify-content-center">
+                <p-button [disabled]="!currentSelectedStaff" *ngIf="!showLoginInput" class="c-button border-circle"
+                    label="Clock-out" (onClick)="onClockOutBtnClicked($event)" />
+            </div>
+
+        </div>
+
+        <div class="flex justify-content-center" style="margin-top: 10rem;">
+            <p-button severity="secondary" icon="pi pi-arrow-left" class="back-btn border-circle" label="Back"
+                (onClick)="back()" />
+        </div>
+
+    </div>
+</div>
+<p-toast position="bottom-center" />
+<p-confirmdialog />

@@ -1,0 +1,53 @@
+<div class="mx-4">
+    <div class="card">
+        <p-tabs value="0">
+            <p-tablist>
+                <p-tab value="0">Today</p-tab>
+                <p-tab value="1">Records</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="0">
+                    <div class="grid">
+                        <div class="col-4">
+                            <div>
+                                <p-card class="box-shadow" header="Donut A">
+                                    <div class="flex flex-column">
+                                        <div>
+                                            description
+                                        </div>
+                                        <div class="flex text-sm mt-3">
+                                            <span>Total donuts openning: </span>
+                                            <span class=" font-bold">7</span>
+                                        </div>
+                                        <div class="flex text-sm">
+                                            <span>Total donuts Closing: </span>
+                                            <span class=" font-bold">7</span>
+                                        </div>
+                                        <div></div>
+                                    </div>
+                                </p-card>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </p-tabpanel>
+                <p-tabpanel value="1">
+                    <p class="m-0">
+                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
+                        laudantium, totam rem
+                        aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
+                        explicabo.
+                        Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
+                        consequuntur magni
+                        dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non
+                        numquam eius
+                        modi.
+                    </p>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+        <p-button label="Print" (onClick)="testPrint()" />
+    </div>
+</div>

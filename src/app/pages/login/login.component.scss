@@ -1,0 +1,51 @@
+.left-side {
+    width: 30%;
+    height: 100%;
+    background-color: var(--primary-base-color);
+}
+
+.right-side {
+
+}
+
+.user-picture {
+    width: fit-content;
+    border: 1px solid grey;
+    height: 110px;
+    width: 110px;
+    
+    span {
+        font-size: 40px !important;
+        color: rgb(182, 182, 182);
+    }
+}
+
+
+:host::ng-deep .c-button .p-button {
+    background-color: var(--primary-base-color) !important;
+    border-radius: 10px;
+    width: 150px;
+    font-size: 13px;
+}
+
+:host::ng-deep .back-btn .p-button {
+    background-color: white !important;
+    border-radius: 10px;
+    width: 150px;
+    font-size: 13px;
+}
+
+:host::ng-deep .login-btn .p-button {
+    background-color: var(--primary-base-color) !important;
+}
+
+.password-input {
+    width: 100px !important;
+    margin-right: 10px;
+    border-radius: 10px !important;
+}
+
+.staff-active {
+    color: black;
+    background-color: #ffffff;
+}

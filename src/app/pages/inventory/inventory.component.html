@@ -1,0 +1,113 @@
+<div class="w-full h-full flex flex-row">
+    <div [ngClass]="isShowSideDetail ? 'shrink-main' : 'expand-main'">
+        <div class="px-4">
+            <label class="text-3xl font-light">Stock inventory</label>
+            <div class="flex justify-content-end">
+                <p-button *ngIf="!isShowSideDetail" label="Add stock" icon="pi pi-plus" size="small"
+                    (onClick)="openSideDetail('add')" />
+            </div>
+            <div class="grid gap-2">
+                <div class="col-2" *ngFor="let item of inventoryList">
+                    <div class="box-shadow border-round-2xl p-3" style=" height: 100px; background-color: white;">
+                        <div class="grid">
+                            <div class="col-7">
+                                <div>
+                                    <div class="text-sm">
+                                        {{item.name}}
+                                    </div>
+                                    <div style="font-size: 39px;">
+                                        {{item.quantity}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5 align-content-center">
+                                <div style="align-content: center !important;">
+                                    <img src="assets/image/box-icon.png" height="40px">
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="flex justify-content-start w-full mt-5" >
+                <div class="box-shadow border-round-2xl p-3" style="background-color: rgb(233, 196, 196); height: 100px; width: 200px;">
+                    <div class="grid">
+                        <div class="col-7">
+                            <div>
+                                <div class="text-sm">
+                                    Waste
+                                </div>
+                                <div style="font-size: 39px;">
+                                    2
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-5 align-content-center">
+                            <div style="align-content: center !important;">
+                                <span class="pi pi-plus-circle" style="font-size: 30px;"></span>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div [ngClass]="isShowSideDetail ? 'expand-side-detail' : 'shrink-side-detail'">
+        <div class="box-shadow px-4 py-2 w-full h-full">
+            <div>
+                <label class="text-lg font-bold">Add stock</label>
+            </div>
+            <div>
+                <form [formGroup]="formGroup" class="card flex justify-center">
+                    <div class="flex flex-column mt-5">
+                        <div>
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2">Select stock</label>
+                            </div>
+                            <div>
+                                <p-select formControlName="stock" [options]="inventoryList" optionLabel="name"
+                                    placeholder="Stock" class="w-10rem mt-1" />
+
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2">Quantity</label>
+                            </div>
+                            <div class="mt-2">
+                                <p-inputnumber inputId="integeronly" formControlName="quantity" class="custom-width" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+            <div class="absolute bottom-0 p-4 flex ">
+                <div>
+                    <p-button severity="secondary" label="Close" size="small" (onClick)="isShowSideDetail = false" />
+
+                </div>
+                <div>
+                    <p-button [disabled]="!this.formGroup.valid" class="ml-5" label="Confirm" size="small"
+                        (onClick)="onConfirmBtnClickeed()" />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

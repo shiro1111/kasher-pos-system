@@ -1,0 +1,32 @@
+.tab-selection-btn {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    width: fit-content;
+    padding: 7px 15px;
+    color: #807171;
+}
+
+.tab-active {
+    background-color: #1e8515;
+    color: white;
+}
+
+.scrollable-card-list {
+    max-height: 60vh;       
+    overflow-y: auto;       /* vertical scrollbar */
+    padding-right: 0.5rem;  /* space for scrollbar */
+  }
+  
+  .scrollable-card-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollable-card-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+  
+  .scrollable-card-list::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+  }
+  
