@@ -1,0 +1,99 @@
+<div class="px-4">
+    <div class="grid">
+        <div class="col-4">
+            <div class="box-shadow total-cash-card p-4 border-round-2xl flex flex-column justify-content-center"
+                style="background-color: #b7ffb7;">
+                <div class="text-sm">Total amount</div>
+                <div class="text-5xl"><span class="text-sm">RM</span>{{totalAmount | number: '1.2-2'}}</div>
+
+            </div>
+
+            <p-button size="small" icon="pi pi-plus-circle" label="Cash in" (onClick)="showDialog('cashIn')"></p-button>
+            <p-button size="small" icon="pi pi-minus-circle" label="Cash out"
+                (onClick)="showDialog('cashOut')"></p-button>
+
+        </div>
+        <div class="col-8 flex flex-column">
+
+            <div #scrollContainer style="width: 100%; height: 80vh; overflow-x: hidden; overflow-y: scroll;"
+                (scroll)="onScroll($event)">
+                <div class="p-grid" style="white-space: nowrap;">
+                    <div class="p-col-12 p-md-6 p-lg-4" *ngFor="let item of cashRecordHistory"
+                        style="flex: 0 0 auto; min-width: 300px;">
+                        <p-card [style]="{'margin-bottom': '1rem', 'padding': '0.75rem', 'height': '100%'}" [ngClass]="{
+                    'bg-green-50': item.recordFrom === 'cashIn' || item.recordFrom === 'payment',
+                    'bg-red-50': item.recordFrom === 'cashOut'
+                  }">
+                            <!-- Card Header -->
+                            <ng-template pTemplate="header">
+                                <div class="flex justify-content-between align-items-center p-2">
+                                    <span class="text-sm font-medium">{{ item.createdBy }}</span>
+                                    <span class="text-sm text-color-secondary">
+                                        {{ item.createdAt | date: 'dd/MM/yyyy hh:mm:ss' }}
+                                    </span>
+                                </div>
+                            </ng-template>
+
+                            <!-- Remark & Amount -->
+                            <div class="flex justify-content-between align-items-center p-2">
+                                <span class="text-sm">{{ item.remark }}</span>
+                                <span class="text-lg font-bold" [ngClass]="{
+                        'text-green-600': item.recordFrom === 'cashIn' || item.recordFrom === 'payment',
+                        'text-red-600': item.recordFrom === 'cashOut'
+                      }">
+                                    {{ item.recordFrom === 'cashIn' || item.recordFrom === 'payment' ? '+' : '-' }}
+                                    RM{{ item.recordAmount | number: '1.2-2' }}
+                                </span>
+                            </div>
+
+                            <!-- Last Total Amount -->
+                            <div
+                                class="flex justify-content-between align-items-center mt-2 p-2 border-top-1 surface-border">
+                                <span class="text-sm text-color-secondary">Last Total Amount</span>
+                                <span class="text-md font-semibold text-primary">
+                                    RM{{ item.totalAmount | number: '1.2-2' }}
+                                </span>
+                            </div>
+                        </p-card>
+                    </div>
+                </div>
+                <!-- <div *ngFor="let item of cashRecordHistory" style="width: 100%; height: 300px;">  
+                    <div> test</div>    
+                </div> -->
+            </div>
+            <!-- Scrollable container -->
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+    <p-dialog [header]="dialogMode == 'cashIn' ? 'Cash-In' : 'Cash-Out' " [modal]="true" [(visible)]="isShowDialog"
+        [style]="{ width: '25rem' }">
+        <form [formGroup]="formGroup">
+            <div class="flex flex-column">
+                <label for="username" class=" mb-2 w-24 font-light text-sm">Amount(RM)</label>
+                <p-inputnumber inputId="integeronly" class="flex-auto" formControlName="amount" [mode]="'decimal'"
+                    [minFractionDigits]="2" [maxFractionDigits]="2" />
+
+            </div>
+            <div class="flex items-center flex flex-column mt-3">
+                <label for="remark" class="mb-2 w-24 font-light text-sm">Remark</label>
+                <input pInputText id="remark" class="flex-auto" autocomplete="off" formControlName="remark" />
+            </div>
+            <div class="flex items-center flex flex-column mt-3">
+                <label for="remark" class="font-light text-sm">Created by</label>
+                <label class="text-lg">{{activeStaff?.staffName}}</label>
+            </div>
+            <div class="flex justify-content-end mt-4">
+                <p-button class="mr-3" label="Cancel" severity="secondary" (click)="isShowDialog = false" />
+                <p-button [disabled]="!formGroup.valid || !activeStaff" label="Submit" (click)="onSubmit()" />
+            </div>
+        </form>
+
+    </p-dialog>
+</div>

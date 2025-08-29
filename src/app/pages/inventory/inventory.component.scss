@@ -1,0 +1,27 @@
+.show-side-detail {
+
+}
+
+.shrink-main {
+    transition: width 0.3s ease-in-out;
+    width: 75%;
+}
+.expand-side-detail {
+    transition: width 0.3s ease-in-out;
+    width: 25%;
+}
+.expand-main {
+    transition: width 0.3s ease-in-out;
+    width: 100%;
+}
+.shrink-side-detail {
+    transition: width 0.3s ease-in-out;
+    width: 0%;
+}
+.custom-width input {
+    width: 20px !important;
+}
+
+:host::ng-deep .custom-width .p-inputnumber-input {
+    width: 140px !important;
+}

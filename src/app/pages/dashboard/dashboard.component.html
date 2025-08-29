@@ -1,0 +1,84 @@
+<div class="grid m-0 p-0 h-full w-full">
+
+    <div class="col-9 flex flex-column h-full">
+        <div class="px-4 flex flex-column h-full">
+
+            <div style="height: 120px;">
+                <app-card-category [initSelectedCategory]="selectedCategory" (emitSelectedCard)="selectedCard($event)"
+                    [categoryList]="categoryList"></app-card-category>
+            </div>
+
+            <div class="flex-1 overflow-y-auto overflow-x-hidden w-full">
+                <div>
+                    <div class="py-4">
+                        <label class="text-lg font-light">Menu</label>
+                        <!-- <app-card-package-box ></app-card-package-box> -->
+                        <app-card-product [productList]="productList"></app-card-product>
+
+                    </div>
+                </div>
+
+                <div class="py-4" *ngIf="packagingList.length && selectedCategory == 'donut'">
+                    <label class="text-lg font-light">Select Packaging</label>
+                    <app-card-package-box [packagingList]="packagingList"></app-card-package-box>
+                </div>
+
+                <!-- <div>
+                </div> -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Right content -->
+    <div class="col-3 border-round-2xl box-shadow bg-white" style="height: 100%;">
+        <app-cart (onCheckOut)="onCheckOut($event)"></app-cart>
+    </div>
+</div>
+
+
+
+<p-dialog [style]="{ width: '40%', height: '65%' }" [draggable]="false" [resizable]="false" header="Confirm payment"
+    [modal]="true" [(visible)]="showConfirmDialog">
+    <div class="grid">
+        <div class="col-7 overflow-x-hidden p-4" style="max-height: 45vh">
+            <app-card-on-cart *ngFor="let product of cart?.products" [product]="product"></app-card-on-cart>
+        </div>
+        <div class="col-5">
+            <div class="p-3 border-round-2xl">
+                <div class="text-lg font-bold mb-4">Summary</div>
+                <div>
+                    <label class="font-light text-xs">Order by</label><br>
+                    <label class="font-bold text-base">{{selectedStaff?.staffName}}</label>
+                </div>
+                <div class="mt-3">
+                    <label class="font-light text-xs">Payment method</label><br>
+                    <label class="font-bold text-base">{{cart?.paymentMethod| uppercase}}</label>
+                </div>
+                <div class="mt-3" *ngIf="cart?.packaging?.length"> 
+                    <label class="font-light text-xs">Packaging</label><br>
+                    <div *ngFor="let item of cart?.packaging">
+                        <label class="font-bold text-base">{{item.name }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute pr-5" style=" width: inherit; bottom: 25px;">
+                <div class="mb-4 flex justify-content-between align-content-center p-3 border-round-2xl"
+                    style="background-color: rgb(232, 232, 232);">
+                    <div><label class="font-bold text-base"> Total Amount:</label></div>
+                    <div><label class="font-bold text-base">RM{{cart?.totalPrice| number: '1.2-2'}}</label></div>
+                </div>
+                <div class="flex justify-content-end gap-4 w-full" style="width: 100%;">
+                    <p-button label="Cancel" severity="secondary" (click)="showConfirmDialog = false" />
+                    <p-button label="Confirm"  (click)="onConfirmPaymentClicked()" [disabled]="loadingConfirmPayment" />
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</p-dialog>
+
+

@@ -1,0 +1,42 @@
+.card-container {
+    border: 1px solid #e6e6e6;
+}
+
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ .scrollable-card-list {
+  max-height: 80vh;       /* adjust height as needed */
+  overflow-y: auto;       /* vertical scrollbar */
+  padding-right: 0.5rem;  /* space for scrollbar */
+}
+
+.scrollable-card-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollable-card-list::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.scrollable-card-list::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #bdbdbd; 
+  border-radius: 20px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
