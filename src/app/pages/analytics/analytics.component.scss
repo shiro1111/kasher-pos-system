@@ -1,0 +1,11 @@
+/* outer “paper” just for reference */
+#paper { width: 58mm; margin: 0; }
+
+/* inner printable area */
+#printable { width: 78mm; margin: 0; }  /* no auto-centering; we want to see true left edge */
+
+#paper { border: 1px solid black; }
+#printable { border: 1px dashed black; }
+.line { border-top: 1px solid black; margin: 2mm 0; }
+
+body { font-family: monospace; font-size: 14px; }

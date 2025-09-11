@@ -23,7 +23,7 @@
             <div class="col-8">
                 <div class="p-grid scrollable-card-list">
                     <div class="p-col-6" *ngFor="let item of individualReport">
-                        <p-card [style]="{'margin-bottom': '1rem'}" (click)="check(item)">
+                        <p-card [style]="{'margin-bottom': '1rem'}">
                             <div class="p-fluid">
 
                                 <!-- Date -->
@@ -78,7 +78,7 @@
             <div class="col-4">
                 <div class="bg-white box-shadow p-3" *ngIf="individualReport && individualReport.length > 0">
                     <div class="p-field col-6">
-                        <small class="p-text-secondary font-bold text-base">Total Sales</small>
+                        <small class="p-text-secondary font-bold text-base" (click)="check()">Total Sales</small>
                         <div class="p-text-bold">RM{{ individualReport | cardTotalSalesAmount}}</div>
                     </div>
                     <div class="p-field col-6">
@@ -90,146 +90,138 @@
 
         </div>
     </div>
+    <div class="overview-container">
 
-    <div class="grid" *ngIf="currentTab === 'Overview'">
-        <div class="col-4">
-            <div>
-                <label class="text-sm">Select date</label><br>
-                <div class="mt-1">
-                    <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
-                        [showIcon]="true" inputId="icondisplay" />
-                    <p-button (onClick)="onSearchClicked()" class="mx-3" label="Search"></p-button>
+        <div class="grid" *ngIf="currentTab === 'Overview'">
+            <!-- Left Section -->
+            <div class="col-12 md:col-4">
+                <div>
+                    <label class="text-sm">Select Date</label><br />
+                    <div class="mt-1 flex flex-column md:flex-row md:align-items-center">
+                        <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                            [showIcon]="true" inputId="icondisplay" [readonlyInput]="true" />
+                        <p-button (onClick)="onSearchClicked()" class="mt-2 md:mt-0 md:ml-2" label="Search"></p-button>
+                    </div>
                 </div>
-            </div>
 
-            <div>
-
-
+                <!-- Summary Card -->
                 <div class="box-shadow p-3 bg-white mt-4 border-round-2xl" *ngIf="summaryDate">
-                    <!-- <div class="col-6"> -->
-                    <div class="flex align-items-center justify-content-between">
+                    <div class="flex flex-column md:flex-row md:justify-content-between">
                         <div class="mb-3" *ngIf="this.totalAmount">
                             <div class="text-sm font-light">Total sales</div>
-                            <div class="font-bold text-base">RM{{this.totalAmount | number : '1.2-2'}}</div>
+                            <div class="font-bold text-base">
+                                RM{{ this.totalAmount | number: '1.2-2' }}
+                            </div>
                         </div>
                         <div class="mb-3" *ngIf="this.summaryDate">
-                            <div class="text-sm font-italic">{{this.summaryDate | date: 'dd/MM/YYYY'}}</div>
+                            <div class="text-sm font-italic">
+                                {{ this.summaryDate | date: 'dd/MM/YYYY' }}
+                            </div>
                         </div>
                     </div>
-
-                    <!-- </div> -->
-                    <!-- <div class="col-6"> -->
-
-                    <!-- </div> -->
-
-
-
-                    <!-- <div class="mb-3" *ngIf="this.totalAmount">
-                        <div class="text-sm font-light">Total sales</div>
-                        <div class="font-bold text-base">RM{{this.totalAmount | number : '1.2-2'}}</div>
-                    </div> -->
 
                     <div class="grid" *ngIf="this.paymentSummary">
-                        <div class="col-6">
+                        <div class="col-12 sm:col-6">
                             <div class="mb-3">
                                 <div class="text-sm font-light">Cash</div>
-                                <div class="font-bold text-base">RM {{this.paymentSummary?.cash?.total | number :
-                                    '1.2-2'}}
+                                <div class="font-bold text-base">
+                                    RM {{ this.paymentSummary?.cash?.total | number: '1.2-2' }}
                                 </div>
-                                <div class="text-xs font-italic">({{this.paymentSummary?.cash?.count}} transaction)
+                                <div class="text-xs font-italic">
+                                    ({{ this.paymentSummary?.cash?.count }} transaction)
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-12 sm:col-6">
                             <div class="mb-3">
                                 <div class="text-sm font-light">QR</div>
-                                <div class="font-bold text-base">RM{{this.paymentSummary?.qr?.total | number : '1.2-2'}}
+                                <div class="font-bold text-base">
+                                    RM{{ this.paymentSummary?.qr?.total | number: '1.2-2' }}
                                 </div>
-                                <div class="text-xs font-italic">({{this.paymentSummary?.qr?.count}} transaction)</div>
+                                <div class="text-xs font-italic">
+                                    ({{ this.paymentSummary?.qr?.count }} transaction)
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="summarizeTotalSoldProducts">
 
-                            </div>
+                            <!-- <div class="col-12 sm:col-4" *ngFor="let item of summarizeTotalSoldProducts | keyvalue">
+                                <div class="mb-2">
+                                    <strong>{{ item.key | titlecase }}</strong>: {{ item.value }}
+                                </div>
+                            </div> -->
                         </div>
+
                     </div>
+
                     <div>
-                        <div class="flex flex-row">
+                        <!-- Tabs -->
+                        <div class="flex flex-wrap">
                             <div *ngFor="let report of summarizeSalesReport"
-                                class="tab-selection-btn text-sm cursor-pointer mb-4 mr-2"
+                                class="tab-selection-btn text-sm cursor-pointer mb-2 mr-2"
                                 (click)="onStaffSummarizeClicked(report)"
-                                [ngClass]="{'tab-active': selectedStaffSummaryTab === report.createdBy}">
-                                {{report.createdBy}}
+                                [ngClass]="{ 'tab-active': selectedStaffSummaryTab === report.createdBy }">
+                                {{ report.createdBy }}
                             </div>
                         </div>
+
+                        <!-- Staff Sales -->
                         <div *ngIf="selectedStaffSummaryReport" class="grid">
-                            <div class="col-4" *ngFor="let item of selectedStaffSummaryReport?.salesProducts">
-                                <div>
-                                    <div class="mb-3">
-                                        <div class="text-sm font-bold">{{ item.type | titlecase }}</div>
-                                        <small>Total item</small>
-                                        <div class="font-bold text-base">{{ item.totalSoldItem }}
-                                        </div>
-                                        <!-- <div class="font-bold text-base">RM{{ item.totalSoldItem | number : '1.2-2' }}
-                                        </div> -->
+                            <div class="col-12 sm:col-6 md:col-4"
+                                *ngFor="let item of selectedStaffSummaryReport?.salesProducts">
+                                <div class="mb-3">
+                                    <div class="text-sm font-bold">
+                                        {{ item.type | titlecase }}
+                                    </div>
+                                    <small>Total item</small>
+                                    <div class="font-bold text-base">
+                                        {{ item.totalSoldItem }}
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-                    <!-- <div *ngIf="this.createdByCount">
-                        <div *ngFor="let item of this.createdByCount  | keyvalue">
-                            <div class="mb-3">
-                                <div class="text-sm font-light">{{ item.key }}</div>
-                                <div class="font-bold text-base">{{ item.value }}</div>
+                </div>
+            </div>
+
+            <!-- Right Section -->
+            <div class="col-12 md:col-8">
+                <ng-container *ngIf="currentTab === 'Overview'">
+                    <div class="flex flex-wrap mt-4" *ngIf="salesReport && salesReport.length > 0">
+                        <div *ngFor="let tab of paymentTabs" class="tab-selection-btn text-sm cursor-pointer mb-2 mr-2"
+                            (click)="onChangePaymentTab(tab)" [ngClass]="{ 'tab-active': currentPaymentTab === tab }">
+                            {{ tab }}
+                        </div>
+                    </div>
+
+                    <div class="mt-2" style="max-height: 300px; overflow-y: auto">
+                        <div *ngFor="let item of filteredPaymentMethod"
+                            class="box-shadow mt-1 p-3 bg-white border-round-2xl grid">
+                            <div class="col-6 sm:col-3">
+                                <small class="text-xs font-bold">Time</small>
+                                <div class="text-sm">{{ item.createdAt | date: 'hh:mm a' }}</div>
+                            </div>
+                            <div class="col-6 sm:col-3">
+                                <small class="text-xs font-bold">Created by</small>
+                                <div class="text-sm">{{ item?.createdBy }}</div>
+                            </div>
+                            <div class="col-6 sm:col-3">
+                                <small class="text-xs font-bold">Amount</small>
+                                <div class="text-sm">
+                                    {{ item?.totalPrice | number: '1.2-2' }}
+                                </div>
+                            </div>
+                            <div class="col-6 sm:col-3">
+                                <small class="text-xs font-bold">Payment method</small>
+                                <div class="text-sm">{{ item.paymentMethod }}</div>
                             </div>
                         </div>
-                    </div> -->
-
-
-                </div>
-
+                    </div>
+                </ng-container>
             </div>
         </div>
-        <div class="col-8">
-
-            <ng-container *ngIf="currentTab === 'Overview'">
-                <div class="flex flex-row mt-4" *ngIf="salesReport && salesReport.length > 0">
-                    <div *ngFor="let tab of paymentTabs" class="tab-selection-btn text-sm cursor-pointer mb-4 mr-2"
-                        (click)="onChangePaymentTab(tab)" [ngClass]="{'tab-active': currentPaymentTab === tab}">
-                        {{tab}}
-                    </div>
-                </div>
-                <div class="mt-2" style="height: 300px; overflow-y: scroll;">
-                    <div *ngFor="let item of filteredPaymentMethod"
-                        class="box-shadow mt-1 p-3 bg-white border-round-2xl flex flex-row justify-content-between">
-                        <div>
-                            <small class="text-xs font-bold">Time</small>
-                            <div class="text-sm">{{item.createdAt | date: 'hh:mm a'}}</div>
-                        </div>
-                        <div>
-                            <small class="text-xs font-bold">Created by</small>
-                            <div class="text-sm">{{item?.createdBy }}</div>
-
-                        </div>
-                        <div>
-                            <small class="text-xs font-bold">Amount</small>
-                            <div class="text-sm">{{item?.totalPrice | number: '1.2-2'}}</div>
-
-                        </div>
-                        <div>
-                            <small class="text-xs font-bold">Payment method</small>
-                            <div class="text-sm">{{item.paymentMethod}}</div>
-
-                        </div>
-
-                    </div>
-                </div>
-
-
-            </ng-container>
-
-
-        </div>
     </div>
+
 
 
 

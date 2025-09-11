@@ -33,7 +33,7 @@ export class SalesReportComponent {
   selectedStaffSummaryTab: string = '';
   selectedStaffSummaryReport: any = null;
   tabs: string[] = ['Overview', 'Individual'];
-  paymentTabs: string[] = ['Cash', 'QR'];
+  paymentTabs: string[] = ['All', 'Cash', 'QR'];
   selectedDate: Date | undefined = new Date();
   selectedIndividualDate: Date = new Date();
   staffList: Staff[] = [];
@@ -49,11 +49,11 @@ export class SalesReportComponent {
   getTotalAmountSales(individualReport: any[]) {
 
   }
-  
+
   onStaffSummarizeClicked(report: any) {
     this.selectedStaffSummaryTab = report.createdBy;
     this.selectedStaffSummaryReport = report;
-    
+
 
   }
   onSearchIndividualClicked() {
@@ -82,14 +82,19 @@ export class SalesReportComponent {
 
   onChangePaymentTab(tab: string) {
     this.currentPaymentTab = tab;
+    if (this.currentPaymentTab === 'All') {
+      this.filteredPaymentMethod = this.salesReport;
+      return;
+    } else {
+      this.filteredPaymentMethod = this.salesReport.filter((item: any) => {
+        return item.paymentMethod.toLowerCase() === tab.toLowerCase();
+      })
+    }
 
-    this.filteredPaymentMethod = this.salesReport.filter((item: any) => {
-      return item.paymentMethod.toLowerCase() === tab.toLowerCase();
-    })
   }
 
-  check(item: any) {
-    console.log('item: ', item);
+  check() {
+    console.log('paymentSummary: ', this.paymentSummary);
 
   }
 
@@ -131,6 +136,23 @@ export class SalesReportComponent {
 
     return mergedReport
   }
+
+  getSummaryTotalSoldProducts() {
+
+    const totals = this.summarizeSalesReport.reduce((acc, staff) => {
+      staff.salesProducts.forEach((product: any) => {
+        if (!acc[product.type]) {
+          acc[product.type] = 0;
+        }
+        acc[product.type] += product.totalSoldItem;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    return totals;
+  }
+
+  summarizeTotalSoldProducts: any = {};
+
   onSearchClicked() {
     if (this.selectedDate) {
       this.selectedStaffSummaryTab = '';
@@ -146,7 +168,10 @@ export class SalesReportComponent {
           //   return item.paymentMethod.toLowerCase() === this.currentPaymentTab.toLowerCase();
           // })
           const mergedRecord = this.mergeSalesRecordAndProducts(this.salesReport, products.data);
+          
           this.summarizeSalesReport = this.summarizeSales(mergedRecord);
+          this.summarizeTotalSoldProducts = this.getSummaryTotalSoldProducts();
+          console.log('summarizeTotalSoldProducts: ', this.summarizeTotalSoldProducts);
           this.onChangePaymentTab(this.currentPaymentTab);
         }
       })
@@ -162,20 +187,20 @@ export class SalesReportComponent {
 
   summarizeSales(transactions: any[]) {
     const summary: any = {};
-  
+
     transactions.forEach((txn) => {
       const { createdBy, totalPrice, products } = txn;
-  
+
       if (!summary[createdBy]) {
         summary[createdBy] = { createdBy, salesProducts: {} };
       }
-  
+
       // find unique product types in this transaction
       const typesInTxn: Set<string> = new Set(products.map((p: Product) => p.type));
-  
+
       products.forEach((product: Product) => {
         const type = product.type;
-  
+
         if (!summary[createdBy].salesProducts[type]) {
           summary[createdBy].salesProducts[type] = {
             type,
@@ -185,7 +210,7 @@ export class SalesReportComponent {
             totalSoldItem: 0,
           };
         }
-  
+
         if (type === "donut") {
           // donuts counted by itemQuantity
           summary[createdBy].salesProducts[type].totalItemQuantity += product.itemQuantity || 0;
@@ -195,21 +220,21 @@ export class SalesReportComponent {
           summary[createdBy].salesProducts[type].totalSoldItem += 1;
         }
       });
-  
+
       // Add totalPrice + transaction count only once per type in this txn
       typesInTxn.forEach((type) => {
         summary[createdBy].salesProducts[type].totalPrice += totalPrice;
         summary[createdBy].salesProducts[type].numberOfTransaction += 1;
       });
     });
-  
+
     // Convert salesProducts object -> array for each createdBy
     return Object.values(summary).map((userSummary: any) => ({
       createdBy: userSummary.createdBy,
       salesProducts: Object.values(userSummary.salesProducts),
     }));
   }
-  
+
 
   getStaffList() {
     this.staffService.getStaffList().subscribe({
