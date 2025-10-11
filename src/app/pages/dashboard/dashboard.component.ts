@@ -95,10 +95,7 @@ export class DashboardComponent {
   }
 
   getProductFromCategory() {
-    this.productList = this.allProducts.filter(res => res.type == this.selectedCategory)
-    console.log('productlist: ', this.productList);
-
-
+    this.productList = this.allProducts.filter(res => res.type == this.selectedCategory && res.enable).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   showConfirmDialog: boolean = false;

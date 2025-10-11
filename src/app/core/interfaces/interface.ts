@@ -23,7 +23,8 @@ export interface Product {
     price: number,
     type: string,
     cartId?: number,
-    itemQuantity: number
+    itemQuantity: number,
+    enable: boolean
 }
 
 export interface Staff {
