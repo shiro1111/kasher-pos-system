@@ -1,20 +1,41 @@
 <div class="px-4">
     <div class="grid">
-        <div class="col-4">
+        <div class="col-12 md:col-6">
             <div class="box-shadow total-cash-card p-4 border-round-2xl flex flex-column justify-content-center"
-                style="background-color: #b7ffb7;">
-                <div class="text-sm">Total amount</div>
-                <div class="text-5xl"><span class="text-sm">RM</span>{{totalAmount | number: '1.2-2'}}</div>
+                style="background-color: #1e8515; color: white">
+                <div class="text-sm">Total wallet amount</div>
+                <div class="text-5xl"><span class="text-sm">RM</span>{{walletAmount | number: '1.2-2'}}</div>
+
 
             </div>
 
-            <p-button size="small" icon="pi pi-plus-circle" label="Cash in" (onClick)="showDialog('cashIn')"></p-button>
-            <p-button size="small" icon="pi pi-minus-circle" label="Cash out"
-                (onClick)="showDialog('cashOut')"></p-button>
+
+
+            <div class="flex mt-4 gap-3">
+                <p-button size="small" icon="pi pi-plus-circle" label="Cash in"
+                    (onClick)="showDialog('cashIn')"></p-button>
+                <p-button size="small" icon="pi pi-minus-circle" label="Cash out"
+                    (onClick)="showDialog('cashOut')"></p-button>
+            </div>
 
         </div>
-        <div class="col-8 flex flex-column">
+        <div class="col-12 md:col-4">
+            <!-- drawer -->
+            <div class="mt-5 box-shadow total-cash-card p-4 border-round-2xl flex flex-column justify-content-center"
+                style="background-color: #b7ffb7;">
+                <div class="text-sm">Drawer amount</div>
+                <div class="text-5xl"><span class="text-sm">RM</span>{{drawerAmount | number: '1.2-2'}}</div>
 
+                <div class="mt-4">
+                    <p-button size="small" icon="pi pi-wallet" label="Transfer to wallet"
+                        (onClick)="showDialog('saveToWallet')"></p-button>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- // list of transaction -->
+        <!-- <div class="col-8 flex flex-column">
             <div #scrollContainer style="width: 100%; height: 80vh; overflow-x: hidden; overflow-y: scroll;"
                 (scroll)="onScroll($event)">
                 <div class="p-grid" style="white-space: nowrap;">
@@ -24,7 +45,6 @@
                     'bg-green-50': item.recordFrom === 'cashIn' || item.recordFrom === 'payment',
                     'bg-red-50': item.recordFrom === 'cashOut'
                   }">
-                            <!-- Card Header -->
                             <ng-template pTemplate="header">
                                 <div class="flex justify-content-between align-items-center p-2">
                                     <span class="text-sm font-medium">{{ item.createdBy }}</span>
@@ -34,7 +54,6 @@
                                 </div>
                             </ng-template>
 
-                            <!-- Remark & Amount -->
                             <div class="flex justify-content-between align-items-center p-2">
                                 <span class="text-sm">{{ item.remark }}</span>
                                 <span class="text-lg font-bold" [ngClass]="{
@@ -46,7 +65,6 @@
                                 </span>
                             </div>
 
-                            <!-- Last Total Amount -->
                             <div
                                 class="flex justify-content-between align-items-center mt-2 p-2 border-top-1 surface-border">
                                 <span class="text-sm text-color-secondary">Last Total Amount</span>
@@ -57,12 +75,27 @@
                         </p-card>
                     </div>
                 </div>
-                <!-- <div *ngFor="let item of cashRecordHistory" style="width: 100%; height: 300px;">  
-                    <div> test</div>    
-                </div> -->
-            </div>
-            <!-- Scrollable container -->
+        </div> -->
 
+    </div>
+
+    <div class="grid mt-5">
+        <div class="col-12 md:col-4">
+            <div>
+                <div class="text-sm">Total cash-in today</div>
+                <div class="text-3xl"><span class="text-sm">RM</span>{{todayCashIn | number: '1.2-2'}}</div>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <div class="text-sm">Total cash-out today</div>
+            <div class="text-3xl"><span class="text-sm">RM</span>{{todayCashOut | number: '1.2-2'}}</div>
+
+        </div>
+        <div class="col-12 md:col-4">
+            <div>List of cashout items</div>
+            <div *ngFor="let cashOut of listOfTodayCashOut">
+                <div class="text-sm font-bold mt-2 ">-{{cashOut?.remark}} <span>(RM{{cashOut?.recordAmount | number: '1.2-2'}})</span></div>
+            </div>
         </div>
 
     </div>
@@ -71,14 +104,19 @@
 
 
 
-
-    <p-dialog [header]="dialogMode == 'cashIn' ? 'Cash-In' : 'Cash-Out' " [modal]="true" [(visible)]="isShowDialog"
+    <p-dialog [header]="getDialogHeader(dialogMode)" [modal]="true" [(visible)]="isShowDialog"
         [style]="{ width: '25rem' }">
+        <div *ngIf="dialogMode === 'saveToWallet'" class="mb-4">
+            <div class="text-sm">Total available amount in drawer</div>
+            <div class="text-lg">RM{{drawerAmount | number: '1.2-2'}}</div>
+
+        </div>
         <form [formGroup]="formGroup">
             <div class="flex flex-column">
                 <label for="username" class=" mb-2 w-24 font-light text-sm">Amount(RM)</label>
                 <p-inputnumber inputId="integeronly" class="flex-auto" formControlName="amount" [mode]="'decimal'"
-                    [minFractionDigits]="2" [maxFractionDigits]="2" />
+                    [minFractionDigits]="2" [maxFractionDigits]="2"
+                    [max]="dialogMode == 'saveToWallet' ?  drawerAmount : null" />
 
             </div>
             <div class="flex items-center flex flex-column mt-3">
@@ -87,7 +125,7 @@
             </div>
             <div class="flex items-center flex flex-column mt-3">
                 <label for="remark" class="font-light text-sm">Created by</label>
-                <label class="text-lg">{{activeStaff.staffName}}</label>
+                <label class="text-lg">{{activeStaff ? activeStaff.staffName : ''}}</label>
             </div>
             <div class="flex justify-content-end mt-4">
                 <p-button class="mr-3" label="Cancel" severity="secondary" (click)="isShowDialog = false" />

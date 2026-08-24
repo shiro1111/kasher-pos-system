@@ -1,0 +1,64 @@
+<div class="grid">
+    <div class="col-9">
+        <div class="grid">
+            <div class="col-12 sm:col-4" *ngFor="let sale of salesProductItems">
+                <div class="box-shadow p-4 mb-4">
+                    <div class="flex justify-content-between">
+                        <div class="font-bold mb-3">{{ getProductName(sale) }}</div>
+                        <div class="text-xs">{{ sale.createdAt | date:'hh:mm:ss':'Asia/Kuala_Lumpur' }}</div>
+                    </div>
+
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <div class="text-sm mb-1" *ngFor="let detail of sale.itemDetail">
+                                <div>{{ detail.productName }}</div>
+                                <div *ngIf="detail.isPremium" class="font-italic">(Premium)</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <small>Created by</small>
+                                <div>{{sale.createdBy}}</div>
+                            </div>
+                            <div>
+                                <small>Total price</small>
+                                <div>RM{{sale.totalPrice | number: '1.2-2'}}</div>
+                            </div>
+
+                        </div>
+                        <!-- 
+                        <div class="col-6">
+                        </div> -->
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div>
+
+        </div>
+    </div>
+
+    <!-- <div class="grid">
+            <div class="col-4" *ngFor="let item of productItems">
+                <app-product-summary-record [product]="item"></app-product-summary-record>
+
+            </div>
+
+        </div> -->
+
+    <div class="col-3 primary-background">
+        <div class="p-4 " >
+            <label class="font-bold text-2xl">Summary</label>
+            <div class="mt-4">
+                <div *ngFor="let item of todaySummary" class="mt-2">
+                    <label class="text-md">{{item.name}}: </label>
+                    <label class="font-bold text-md">{{item.sold}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

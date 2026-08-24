@@ -12,6 +12,12 @@ export class CashRecordService {
     private apiService: ApiService,
   ) { }
 
+
+  // submitSaveToWallet(data: CashRecordRequest): Observable<any> {
+  //   return this.apiService.saveToWallet(data);
+  // }
+
+
   submitCashInCashOut(data: CashRecordRequest): Observable<any> {
     return this.apiService.getLatestCashAmount().pipe(
       switchMap((res: any) => {
@@ -23,6 +29,11 @@ export class CashRecordService {
           newTotalAmount = currentAmount + newAmount;
         } else if (data.recordFrom === 'cashOut') {
           newTotalAmount = currentAmount - newAmount;
+        } else if (data.recordFrom === 'saveToWallet') {
+          newTotalAmount = currentAmount - newAmount;
+          data.remark = `Transfer to Wallet ${data.remark ? '-' + data.remark : ''}`;
+
+
         }
 
         const newRecord: CashRecordRequest = {

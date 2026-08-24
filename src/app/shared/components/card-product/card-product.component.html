@@ -1,5 +1,5 @@
 <div class="grid mt-4">
-    <div class="col-2 cursor-pointer" *ngFor="let item of productList" (click)="onPackageCLicked(item.id)">
+    <div class="col-2 cursor-pointer" *ngFor="let item of productList" (click)="onPackageCLicked(item)">
         <div style="background-color: white;" class="box-shadow p-3 border-round-2xl">
             <!-- <div class="flex justify-content-end">
                 <p-button  size="small" severity="secondary" icon="pi pi-pencil" rounded aria-label="Edit"
@@ -11,13 +11,14 @@
                 <!-- <img *ngIf="item.type == 'dessert'" src="assets/image/dessert.png" height="50"> -->
             </div>
             <div class="pt-3">
-                <div class="font-bold text-base">{{item.name}}</div>
-                <div *ngIf="!isCustomPriceVisible(item.id)" class="text-sm text-green-700 font-bold">RM{{item.price | number: '1.2-2'}}</div>
+                <div class="font-bold text-base">{{item.name | uppercase}}</div>
+                <!-- <div *ngIf="!isCustomPriceVisible(item.id)" class="text-sm text-green-700 font-bold">RM{{item.price |
+                    number: '1.2-2'}}</div> -->
             </div>
             <div class="mt-2">
                 <p-inputnumber *ngIf="isCustomPriceVisible(item.id)" size="small" class="custom-input-number"
-                    [(ngModel)]="customPrices[item.id]" [showButtons]="true" buttonLayout="horizontal" inputId="horizontal"
-                    spinnerMode="horizontal" [step]="0.10" mode="currency" currency="MYR">
+                    [(ngModel)]="customPrices[item.id]" [showButtons]="true" buttonLayout="horizontal"
+                    inputId="horizontal" spinnerMode="horizontal" [step]="0.10" mode="currency" currency="MYR">
                     <ng-template pTemplate="incrementbuttonicon">
                         <span class="pi pi-plus"></span>
                     </ng-template>
@@ -28,14 +29,102 @@
             </div>
             <div class="mt-3 w-full justify-content-center flex">
                 <p-button (onClick)="onAddToCartClicked(item)" severity="primary" class="add-to-cart-btn"
-                    styleClass="w-full" label="Add to cart" />
+                    styleClass="w-full" label="ADD TO CART" />
             </div>
         </div>
 
     </div>
 </div>
 
+<p-dialog header="{{selectedPackageObject?.name}}" [modal]="true" [(visible)]="isOpenSelectionDialog"
+    [style]="{ width: '50%'}">
+    <div class="grid" style="height: 60vh;">
+        <div class="col-8">
+            <div style="background-color: rgb(255, 255, 255); height: 60vh; overflow-y: scroll;"
+                class="flex flex-column justify-content-between p-2">
+                <div>
+                    <!-- [ngClass]="{ 'selected-product': isProductSelected(item.id), 'disabled-product': maxProductSelection == selectedProduct?.length && !isProductSelected(item.id) }" -->
 
+                    <div class="grid">
+                        <div class="col-12 divider">Classic</div>
+                        <div class="col-4 p-2" *ngFor="let item of normalDonuts">
+                            <div (click)="addToProductSelection(item)"
+                                [ngClass]="{'disabled-product': maxProductSelection == selectedProduct.length}"
+                                class="clickable-item text-500 p-3 border-round-2xl box-shadow cursor-pointer flex justify-content-center flex-column align-items-center">
+                                <div class="flex justify-content-center align-content-center">
+                                    <img [src]="getImage(item.productName)" style="width: 100px; height: 100px; object-fit: contain;" alt="Domisu Donut">
+                                </div>
+                                <div class="text-center text-sm">{{item.productName}}</div>
+                                
+                            </div>
+                        </div>
+                        <div class="col-12 divider">Premium</div>
+                        <div class="col-4 p-2" *ngFor="let item of premiumDonuts">
+                            <div (click)="addToProductSelection(item)"
+                                [ngClass]="{'disabled-product': maxProductSelection == selectedProduct.length}"
+                                class="clickable-item text-500 p-3 border-round-2xl box-shadow cursor-pointer flex justify-content-center align-items-center flex-column">
+                                <div class="flex justify-content-center align-content-center">
+                                    <img [src]="getImage(item.productName)" style="width: 100px; height: 100px; object-fit: contain;" alt="Domisu Donut">
+                                </div>
+                                <div class="text-center text-sm">{{item.productName}}</div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="h-full">
+                <div class="flex flex-column justify-content-between h-full py-3 px-2"
+                    style="background-color: rgb(240, 240, 240);">
+                    <div>
+                        <label class=" font-bold">Selected products</label>
+                        <div class="mt-3">
+                            <div *ngFor="let item of selectedProduct">
+                                <div class="text-sm card-product">
+                                    <div>
+                                        <div class="text-sm">{{item.productName}}</div>
+                                        <div class="font-italic	text-xs">{{item?.isPremium ? '(Premium)' : ''}}</div>
+                                    </div>
+                                    <div>
+                                        <span (click)="removeItem(item)" class="pi pi-times" style="color: gray;"></span>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: grey;" class="text-end text-xs ">
+                            SubTotal:
+                            <span>RM{{subtotal | number: '1.2-2'}}</span>
+                        </div>
+                        <div style="color: grey;" class="text-end text-xs">
+                            Discount:
+                            <span style="color: red;">RM-{{discount | number: '1.2-2'}}</span>
+                        </div>
+                        <div style="color: grey;" class="text-end py-2" (click)="check()">
+                            Total price:
+                            <span style="color: green;">RM{{totalPrice | number: '1.2-2'}}</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-column gap-2 justify-content-end pt-3 align-content-center">
+        <div class="flex justify-content-end gap-2 align-content-center" style="display: flex !important; align-items: center !important;">
+
+            <p-button label="Cancel" severity="secondary" (click)="closeDialog()" />
+            <p-button label="Add to cart" [disabled]="maxProductSelection != selectedProduct.length"
+                (click)="submitDialog()" />
+        </div>
+    </div>
+</p-dialog>
 
 <!-- // old -->
 

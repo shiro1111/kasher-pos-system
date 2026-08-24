@@ -16,11 +16,12 @@ import { CardTotalDonutPipe } from '../../core/pipes/card-total-donut.pipe';
 import { CardTotalSalesAmountPipe } from '../../core/pipes/card-total-sales-amount.pipe';
 import { CardTotalDonutSummaryPipe } from '../../core/pipes/card-total-donut-summary.pipe';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-sales-report',
   standalone: true,
-  imports: [CommonModule, ButtonModule, CardTotalDonutSummaryPipe, CardModule, CardTotalSalesAmountPipe, CardTotalDonutPipe, CardTotalSalePipe, FluidModule, SelectModule, InputTextModule, DatePickerModule, FormsModule],
+  imports: [CommonModule, ButtonModule, CardTotalDonutSummaryPipe, CardModule, CardTotalSalesAmountPipe, CardTotalDonutPipe, CardTotalSalePipe, FluidModule, SelectModule, InputTextModule, DatePickerModule, FormsModule, DialogModule],
   templateUrl: './sales-report.component.html',
   styleUrl: './sales-report.component.scss'
 })
@@ -41,13 +42,31 @@ export class SalesReportComponent {
   individualReport: any[] = [];
   filteredPaymentMethod: any[] = [];
   salesReport: any[] = [];
+  productsList: any[] = [];
+  isProductListDialogVisible: boolean = false;
 
   ngOnInit() {
     this.getStaffList();
+    this.getProductList();
+    this.getAllProductItems();
+  }
+  productItems: any[] = [];
+  getAllProductItems() {
+    this.apiService.getAllProductItems().subscribe(res => {
+      this.productItems = res.data;
+    })
   }
 
   getTotalAmountSales(individualReport: any[]) {
 
+  }
+
+  getProductList() {
+    this.dashboardService.getAllProducts().subscribe(res => {
+      this.productsList = res.data;
+      console.log('productsList: ', this.productsList);
+
+    })
   }
 
   onStaffSummarizeClicked(report: any) {
@@ -66,16 +85,6 @@ export class SalesReportComponent {
       },
       error: (err) => {
         console.error('Failed to reload some data:', err);
-      }
-    })
-
-    this.apiService.getSalesReportByStaff(this.selectedStaff, this.selectedIndividualDate).subscribe(res => {
-      console.log('getSalesReportByStaff: ', res);
-      this.apiService.getAllProducts().subscribe
-      if (res && res.data) {
-        this.summarizeReport(res.data);
-      } else {
-        console.error('No data found for the selected staff and date');
       }
     })
   }
@@ -162,17 +171,28 @@ export class SalesReportComponent {
         this.dashboardService.getAllProducts(),
       ]).subscribe({
         next: ([salesReport, products]) => {
-          this.salesReport = salesReport.data;
+          console.log('salesReport: ', salesReport);
+          // console.log('product: ' , this.findProductByProductId((salesReport.data)));
+          const product = this.findProductByProductId((salesReport.data))
+          console.log('productX: ', product);
+
+          // this.salesReport = salesReport.data;
+          this.salesReport = this.mergeSalesRecordAndProducts(salesReport.data, products.data);
+          ;
           this.summarizeReport(salesReport.data);
           // this.filteredPaymentMethod = this.salesReport.filter((item: any) => {
           //   return item.paymentMethod.toLowerCase() === this.currentPaymentTab.toLowerCase();
           // })
           const mergedRecord = this.mergeSalesRecordAndProducts(this.salesReport, products.data);
-          
+
           this.summarizeSalesReport = this.summarizeSales(mergedRecord);
+          console.log('summrize sales report: ' ,  this.summarizeSalesReport);
+          
           this.summarizeTotalSoldProducts = this.getSummaryTotalSoldProducts();
           console.log('summarizeTotalSoldProducts: ', this.summarizeTotalSoldProducts);
           this.onChangePaymentTab(this.currentPaymentTab);
+          console.log('sales report; ', this.salesReport);
+
         }
       })
       // this.apiService.getSalesReportFor(this.selectedDate).subscribe(res => {
@@ -181,6 +201,36 @@ export class SalesReportComponent {
       //   this.mergeSalesRecordAndProducts(this.salesReport, );
       // })
     }
+  }
+
+  getProductDetailById(productId: string) {
+    const product = this.productsList.find((p: any) => p.id === Number(productId));
+    return product;
+  }
+
+  findProductByProductId(data: any[]) {
+    if (data && data.length > 0) {
+      const updatedData = data.map(d => {
+        const productList: any[] = [];
+        d.productsId.split(',').map((pid: string) => {
+          const product = this.getProductDetailById(pid);
+          productList.push(product);
+        })
+        console.log('productlist: ', productList);
+        return {
+          ...d,
+          products: productList
+        }
+      })
+
+      return updatedData;
+    }
+    return [];
+    // const id = productId.split(',').map((pid: string) => Number(pid.trim()));
+    // console.log('id: ' , id);
+    console.log('new data: ', data);
+
+
   }
 
   summarizeSalesReport: any[] = [];
@@ -196,10 +246,10 @@ export class SalesReportComponent {
       }
 
       // find unique product types in this transaction
-      const typesInTxn: Set<string> = new Set(products.map((p: Product) => p.type));
+      const typesInTxn: Set<string> = new Set(products.map((p: Product) => p?.type));
 
       products.forEach((product: Product) => {
-        const type = product.type;
+        const type = product?.type;
 
         if (!summary[createdBy].salesProducts[type]) {
           summary[createdBy].salesProducts[type] = {
@@ -235,6 +285,41 @@ export class SalesReportComponent {
     }));
   }
 
+  productItemDetails: any[] = [];
+  onProducListClicked(item: any) {
+    this.productItemDetails = [];
+    this.apiService.getProductItemProductRecordBySalesId(item.id).subscribe(res => {
+      if (res.data && res.data.length) {
+        const productItems = res.data;
+        productItems.forEach((item: any) => {
+          const product = this.productsList.find(p => p.id == item.productId);
+          if (product) {
+            const productName = product.name;
+            const itemIds = item?.itemIds?.split(",");
+            let itemName: any[] = [];
+            itemIds?.forEach((item: any) => {
+              const product = this.productItems.find(p => p.id == item);
+
+              itemName.push(product);
+
+            });
+            const detail = {
+              name: productName,
+              productItems: itemName
+            }
+            this.productItemDetails.push(detail);
+            console.log('productItemDetails: ' , this.productItemDetails);
+            
+          }
+        });
+      }
+    })
+    this.isProductListDialogVisible = true;
+  }
+
+  closeProductListDialog() {
+    this.isProductListDialogVisible = false;
+  }
 
   getStaffList() {
     this.staffService.getStaffList().subscribe({
@@ -247,6 +332,8 @@ export class SalesReportComponent {
     })
   }
   summarizeReport(data: any[]) {
+    data = data.filter(item => item.productsId) // to remove the underfined productsId from the sales report
+    
     let totalAmount = 0;
 
     const paymentSummary: {

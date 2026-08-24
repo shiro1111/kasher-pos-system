@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, from, Observable, of } from 'rxjs';
-import { Cart, CashRecordRequest, Category, Inventory, Product, SBResponse, Staff } from '../interfaces/interface';
+import { Cart, CashRecordRequest, Category, Inventory, Product, ProductItem, SBResponse, Staff, WalletRecordRequest } from '../interfaces/interface';
 import data from '../../../assets/data/data.json'
 import { SupabaseService } from '../services/supabase.service';
 import { keysToCamelCase } from '../utils/keyToCamelCase';
@@ -28,6 +28,13 @@ export class ApiService {
     )
   }
 
+  getCashRecordHistoryByDate(dateFrom: Date, dateTo: Date): Observable<SBResponse> {
+    return from(
+      this.supabaseService.getCashRecordHistoryByDate(dateFrom, dateTo).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
   // loadPage(page: number, pageSize: number): Observable<SBResponse> {
   //   const from = (page - 1) * pageSize;
   //   const to = from + pageSize - 1;
@@ -95,6 +102,22 @@ export class ApiService {
       })
     )
   }
+  
+  getProductItems(): Observable<any> {
+    return from(
+      this.supabaseService.getPackagingList().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  getSalesProductItem(startDate: string, endDate: string): Observable<any> {
+    return from(
+      this.supabaseService.getSalesProductItem(startDate, endDate).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
 
   getPackagingList(): Observable<any> {
     return from(
@@ -102,6 +125,28 @@ export class ApiService {
         return this.convertResToCamelCase(res);
       })
     )
+  }
+
+  getSalesReport(startDate: Date, endDate: Date) {
+    const start = new Date(Date.UTC(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate(),
+      0, 0, 0, 0 // Start of the day in UTC
+    ));
+
+    const end = new Date(Date.UTC(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate() + 1,
+      0, 0, 0, 0 // Start of the next day in UTC
+    ));
+
+    return from(
+      this.supabaseService.getSalesReportFor(startDate, endDate).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    );
   }
 
   getSalesReportFor(date: Date) {
@@ -185,6 +230,40 @@ export class ApiService {
     )
   }
 
+  
+  addNewWalletRecord(walletRecord: WalletRecordRequest, cashRecord: CashRecordRequest): Observable<any> {
+    return from(
+      this.supabaseService.addNewWalletRecord(walletRecord, cashRecord).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  getProductItemProductRecordBySalesId(id: number): Observable<SBResponse> {
+    return from(
+      this.supabaseService.getProductItemProductRecordBySalesId(id).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  
+  getLatestWalletAmount(): Observable<SBResponse> {
+    return from(
+      this.supabaseService.getLatestWalletAmount().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
+  addNewProductItemsRecord(salesProduct: any): Observable<any> {
+    return from(
+      this.supabaseService.addNewProductItemsRecord(salesProduct).then(res => {
+        return res;
+      })
+    )
+  }
+
   addNewCashRecord(data: CashRecordRequest): Observable<any> {
     return from(
       this.supabaseService.addNewCashRecord(data).then(res => {
@@ -227,9 +306,42 @@ export class ApiService {
     }
   }
 
+  addNewProductItem(item: ProductItem): Observable<any> {
+    return from(
+      this.supabaseService.addNewProductItem(item).then(res => {
+        return res;
+      })
+    )
+  }
+ 
+  getAllProductItems(): Observable<any> {
+    return from(
+      this.supabaseService.getAllProductItems().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+ 
+  getDailyProductRecordForToday(): Observable<any> {
+    return from(
+      this.supabaseService.getDailyProductRecordForToday().then(res => {
+        console.log('getDailyProductRecordForToday: ', res);
+        
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+ 
+  getProductSummary(): Observable<any> {
+    return from(
+      this.supabaseService.getProductSummary().then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
   private convertResToCamelCase(res: any) {
     const camelData = keysToCamelCase(res.data ?? []);
-
     return { ...res, data: camelData };
   }
 }

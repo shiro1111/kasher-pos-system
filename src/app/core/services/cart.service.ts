@@ -28,7 +28,7 @@ export class CartService {
       packaging: [],
       paymentMethod: '',
       products: [],
-      totalPrice: 9
+      totalPrice: 0
     }
   }
 
@@ -47,6 +47,7 @@ export class CartService {
     }
     this._cart.next(cart);
     this.calculateTotalPrice();
+    console.log('cart: ', this._cart.value);
 
   }
 
@@ -110,7 +111,7 @@ export class CartService {
 
   calculateTotalPrice() {
     let cart = this._cart.value;
-    const totalPrice: number = Number(cart?.products.reduce((sum, item) => sum + item.price, 0));
+    const totalPrice: number = Number((cart?.products.reduce((sum, item) => sum + item.price, 0))?.toFixed(2)) || 0;
     if (cart) {
       cart = {
         ...cart,
@@ -138,7 +139,7 @@ export class CartService {
     this.apiService.getInventoryQuantityAndIdAndType();
   }
 
-  onConfirmPayment(selectedStaff: Staff | null): Observable<boolean> {
+  onConfirmPayment(selectedStaff: Staff | null): Observable<any> {
     let cart = this._cart.value ?? this.createEmptyCartData();
     cart = {
       ...cart,
@@ -147,19 +148,42 @@ export class CartService {
 
     const products = cart?.products ?? [];
     let stringId: string = products.map(p => p.id).join(', ');
-
     return this.apiService.addNewSalesRecord(cart, stringId).pipe(
       take(1),
       tap((res) => {
         if (res) {
-          this.onSuccessPayment(cart, selectedStaff);
+          this.onSuccessPayment(cart, selectedStaff, res);
         }
       }),
-      map((res) => !!res) // convert truthy/falsy to boolean
+      map((res) => res) // convert truthy/falsy to boolean
     );
   }
 
-  private onSuccessPayment(cart: Cart, selectedStaff: Staff | null) {
+  private saveProductItemsRecord(res: any[], cart: Cart) {
+    const products = cart.products ?? [];
+    products.forEach(product => {
+      const salesProduct = {
+        id: res[0]?.id,
+        itemsId: product.productItemsIds,
+        productId: product.id,
+        totalPrice: cart.totalPrice,
+        createdBy: cart.createdBy
+      }
+
+      this.apiService.addNewProductItemsRecord(salesProduct).subscribe(recordRes => {
+        if (recordRes) {
+          console.log('success add the sales product items record');
+        }
+      })
+    });
+  }
+
+  private onSuccessPayment(cart: Cart, selectedStaff: Staff | null, res?: any) {
+    // store to the sales items db
+    if (res) {
+      this.saveProductItemsRecord(res, cart);
+    }
+
     if (cart?.paymentMethod === 'cash') {
       this.addCashPaymentToCashRecord(cart.totalPrice, selectedStaff);
     }
@@ -259,28 +283,4 @@ export class CartService {
   resetCart() {
     this._cart.next(this.createEmptyCartData());
   }
-  // processThePaymentProductAndDeductFromInventory(type: string) {
-  //   const cartItems = this._cartItems.value;
-  //   console.log('cartItem: ', cartItems);
-
-  //   cartItems.map(item => {
-  //     if (item.type == 'donut') {
-  //       // for donut need to deduct the box and donut inentory
-  //       forkJoin([
-  //         this.apiService.getInventoryFor(type),
-  //       ]).subscribe(([data1, data2]) => {
-  //         console.log(data1, data2); // emits once when both complete
-  //       });
-
-  //       // this.inventoryService.getInventoryFor('donut').subscribe(res => {
-  //       //   if (res) {
-  //       //   }
-  //       // })
-  //     }
-  //   })
-
-
-  // }
-
-
 }

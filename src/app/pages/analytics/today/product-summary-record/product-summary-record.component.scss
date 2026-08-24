@@ -1,0 +1,25 @@
+.input-number {
+    width: 150px !important;
+    margin-right: 10px !important;
+}
+
+.custom-button {
+    font-size: 2px !important;
+}
+
+.input-number {
+    width: 20px !important;
+    max-width: 20px !important;
+}
+
+:host ::ng-deep {
+    .custom-split-button .p-splitbutton-button.p-button {
+        display: none !important;
+    }
+ 
+    .add-split-button .p-splitbutton-button.p-button {
+        font-size: 12px !important;
+    }
+
+    
+}

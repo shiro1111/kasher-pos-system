@@ -16,11 +16,14 @@ import { StaffService } from '../../core/services/staff.service';
 import { CardOnCartComponent } from '../../shared/components/card-on-cart/card-on-cart.component';
 import { AlertService } from '../../core/services/alert.service';
 import { ToastModule } from 'primeng/toast';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PrintService } from '../../core/services/print.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [ButtonModule, DialogModule, ToastModule, CommonModule, CardOnCartComponent, CartComponent, CardCategoryComponent, CardPackageBoxComponent, CardProductComponent],
+  imports: [ButtonModule, DialogModule, ToastModule, ReactiveFormsModule, FormsModule, CommonModule, CheckboxModule, CardOnCartComponent, CartComponent, CardCategoryComponent, CardPackageBoxComponent, CardProductComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -34,11 +37,13 @@ export class DashboardComponent {
   cart: Cart | null = null;
   packagingList: Packaging[] = [];
   loadingConfirmPayment: boolean = false;
-
+  productItems: Product[] = [];
+  isPrintReciept: boolean = false;
   constructor(
     private alertService: AlertService,
     private staffService: StaffService,
     private cartService: CartService,
+    private printService: PrintService,
     private dashboardService: DashboardService,
     private apiService: ApiService) { }
 
@@ -47,6 +52,8 @@ export class DashboardComponent {
     this.getCategoryList();
     this.getAllProducts();
     this.getPackaging();
+    this.getProductItems();
+    this.staffService.initializeActiveStaff();
     this.selectedCategory = sessionStorage.getItem(SELECTED_CATEGORY) ?? '';
     if (this.selectedCategory) {
       this.selectedCard(this.selectedCategory);
@@ -55,10 +62,17 @@ export class DashboardComponent {
 
   }
 
+  getProductItems() {
+    this.dashboardService.getProductItems().subscribe(res => {
+      if (res && res?.data) {
+        this.productItems = res.data;
+      }
+    })
+  }
+
   getPackaging() {
     this.dashboardService.getPackaging().subscribe(res => {
       this.packagingList = res && res.data ? res.data as Packaging[] : [];
-      console.log('packagingList: ', this.packagingList);
     })
   }
 
@@ -75,7 +89,7 @@ export class DashboardComponent {
       this.calculateNoOfItemEachOfproducts();
     })
   }
-  
+
   getCategoryList() {
     this.apiService.getCategoryList().subscribe(data => {
       this.categoryList = data;
@@ -120,38 +134,47 @@ export class DashboardComponent {
       this.selectedStaff = selectedStaff;
     });
   }
-  
 
-onConfirmPaymentClicked() {
-  if (this.loadingConfirmPayment) return; // Prevent double-trigger
-  this.loadingConfirmPayment = true;
 
-  this.cartService.onConfirmPayment(this.selectedStaff)
-    .pipe(take(1))
-    .subscribe({
-      next: (success) => {
-        this.loadingConfirmPayment = false;
-        if (!success) {
-          return this.alertService.showError(
-            'Failed to save payment',
-            'Please contact Admin for assistance!'
-          );
+  onConfirmPaymentClicked() {
+    if (this.loadingConfirmPayment) return;
+    this.loadingConfirmPayment = true;
+
+    this.cartService.onConfirmPayment(this.selectedStaff)
+      .pipe(take(1))
+      .subscribe({
+        next: (success: any) => {
+          
+          this.loadingConfirmPayment = false;
+          if (!success) {
+            return this.alertService.showError(
+              'Failed to save payment',
+              'Please contact Admin for assistance!'
+            );
+          }
+          const invoiceNumber = success[0]?.id || 0;
+          this.printReciept(invoiceNumber);
+          this.cartService.resetCart();
+          this.showConfirmDialog = false;
+          this.isPrintReciept = false;;
+          this.alertService.showSuccess("Payment successfully");
+        },
+        error: () => {
+          this.loadingConfirmPayment = false;
         }
-        this.cartService.resetCart();
-        this.showConfirmDialog = false;
-        this.alertService.showSuccess("Payment successfully");
-      },
-      error: () => {
-        this.loadingConfirmPayment = false;
-      }
-    });
-}
+      });
+  }
 
+  printReciept(invoice: number) {
+    if (this.isPrintReciept) {
+      this.printService.printReceipt(this.cart, invoice);
+    }
+  }
 
   // onConfirmPaymentClicked() {
   //   if (this.loadingConfirmPayment) return; // Prevent double-trigger
   //   this.loadingConfirmPayment = true;
-  
+
   //   this.cartService.onConfirmPayment(this.selectedStaff).pipe(take(1)).subscribe({
   //     next: (res) => {
   //       if (!res) {
@@ -171,7 +194,7 @@ onConfirmPaymentClicked() {
   //     }
   //   });
   // }
-  
+
 
   ngOnDestroy() {
     this.unsubscribe$.next(null);

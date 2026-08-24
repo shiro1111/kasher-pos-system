@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Packaging, Product } from '../../../core/interfaces/interface';
-
+import { PopoverModule } from 'primeng/popover';
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-card-on-cart',
   standalone: true,
-  imports: [CommonModule,],
+  imports: [CommonModule,PopoverModule, ButtonModule],
   templateUrl: './card-on-cart.component.html',
   styleUrl: './card-on-cart.component.scss'
 })

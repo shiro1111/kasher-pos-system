@@ -1,0 +1,128 @@
+<div class="box-shadow p-4">
+    <div class="w-full flex justify-center align-content-center">
+        <div class="flex w-full justify-content-between	 align-items-center">
+            <div>
+                <label class="text-ms font-bold">{{product?.productName}}</label><br>
+            </div>
+            <div class="flex flex-column align-items-center">
+                <p-splitbutton class="custom-split-button" dropdownIcon="pi pi-cog" [model]="settingSplitButtonItems" />
+                <!-- <p-button (click)="op.toggle($event); setPopoverMode('closing')" size="small" [rounded]="true"
+                    icon="pi pi-cart-arrow-down" /> -->
+
+            </div>
+        </div>
+
+    </div>
+    <div>
+        <label class="text-xs text-400">Total donuts <span class="text-green-600 font-italic">({{newItem}} new</span>,
+            <span class="text-red-600 font-italic">{{waste}} waste)</span></label><br>
+        <div class="flex align-content-center">
+            <div>
+                <label class="font-bold text-xl">{{totalItems}}</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card flex justify-content-between mt-2">
+        <p-button icon="pi pi-plus" label=" Donut" (onClick)=" addNewItem()" [style]="{'font-size' : '12px'}" />
+        <p-button icon="pi pi-trash" [style]="{'background-color' : '#ff5151', 'border' : '1px solid #ff5151'}"
+            (onClick)="addWaste()" />
+    </div>
+    <div class="mt-2">
+        <p-accordion>
+            <p-accordion-panel value="0">
+                <p-accordion-header>Summary</p-accordion-header>
+                <p-accordion-content>
+                    <div>
+                        <div class="grid">
+                            <div class="col-6 py-0">
+                                <label class="text-xs text-400">Last donut</label><br>
+                                <label class="font-bold text-sm">{{lastTotalItems}}</label>
+                            </div>
+                            <div class="col-6 py-0">
+                                <label class="text-xs text-green-500">New donut</label><br>
+                                <label class="font-bold text-sm text-green-700">{{newItem}}</label>
+                            </div>
+                            <div class="col-6 py-0">
+                                <label class="text-xs text-red-400">Waste</label><br>
+                                <label class="font-bold text-sm text-red-700">{{waste}}</label>
+                            </div>
+                            <div class="col-6 py-0" *ngIf="isClosing">
+                                <label class="text-xs text-green-400">Closing</label><br>
+                                <label class="font-bold text-sm text-green-700">{{waste}}</label>
+                            </div>
+                            <p-divider *ngIf="isClosing" />
+                            <div class="col-6 py-0" *ngIf="isClosing">
+                                <label class="text-xs text-green-400">Total sold</label><br>
+                                <label class="font-bold text-sm text-green-700">{{totalSold}}</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </p-accordion-content>
+            </p-accordion-panel>
+        </p-accordion>
+    </div>
+</div>
+
+<p-popover #op>
+    <div class="flex flex-column gap-2">
+        <ng-container>
+            <div>
+                <label class="text-sm">
+                    <span *ngIf="popoverMode === 'closing'">Closing quantity</span>
+                    <span *ngIf="popoverMode === 'new'">New item quantity</span>
+                </label>
+            </div>
+            <div class="grid">
+                <div style="width: 60px;">
+                    <p-inputnumber [styleClass]="'input-number'" [(ngModel)]="totalClosing" [showButtons]="true"
+                        buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal" [step]="1">
+                        <ng-template #incrementbuttonicon>
+                            <span class="pi pi-plus"></span>
+                        </ng-template>
+                        <ng-template #decrementbuttonicon>
+                            <span class="pi pi-minus"></span>
+                        </ng-template>
+                    </p-inputnumber>
+                    <!-- <p-inputnumber mode="decimal" inputId="withoutgrouping" [(ngModel)]="totalClosing"
+                        [useGrouping]="false" class="input-number" /> -->
+                </div>
+                <div>
+                    <p-button label="Confirm" (onClick)="op.hide(); onClosing()"
+                        [style]="{'font-size' : '12px'}"></p-button>
+
+                </div>
+
+            </div>
+
+            <div class="flex justify-content-end gap-2">
+            </div>
+        </ng-container>
+    </div>
+</p-popover>
+
+<p-dialog [(visible)]="displayClosingDialog" header="Closing" [closable]="false" [modal]="true"
+    [style]="{width: '400px'}">
+    <form [formGroup]="closingForm">
+        <div class="field">
+            <div class="m-2">
+                <label for="closingDonuts">Closing Donuts</label>
+
+            </div>
+            <p-inputnumber id="closingDonuts" [(ngModel)]="closingForm.controls['closingDonuts'].value"
+                formControlName="closingDonuts" [showButtons]="true" [min]="0" [step]="1" [useGrouping]="false">
+            </p-inputnumber>
+            <small *ngIf="closingForm.get('closingDonuts')?.invalid && closingForm.get('closingDonuts')?.touched"
+                class="p-error">
+                Closing donuts is required.
+            </small>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button label="Close" severity="secondary" class="p-button-secondary"
+            (click)="closeClosingDialog()"></p-button>
+        <p-button label="Confirm" class="p-button-success" [disabled]="closingForm.invalid"
+            (click)="confirmClosing()"></p-button>
+    </ng-template>
+</p-dialog>

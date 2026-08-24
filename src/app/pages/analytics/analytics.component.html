@@ -4,50 +4,98 @@
             <p-tablist>
                 <p-tab value="0">Today</p-tab>
                 <p-tab value="1">Records</p-tab>
+                <p-tab value="2">Configuration</p-tab>
             </p-tablist>
             <p-tabpanels>
                 <p-tabpanel value="0">
-                    <div class="grid">
-                        <div class="col-4">
-                            <div>
-                                <p-card class="box-shadow" header="Donut A">
-                                    <div class="flex flex-column">
-                                        <div>
-                                            description
-                                        </div>
-                                        <div class="flex text-sm mt-3">
-                                            <span>Total donuts openning: </span>
-                                            <span class=" font-bold">7</span>
-                                        </div>
-                                        <div class="flex text-sm">
-                                            <span>Total donuts Closing: </span>
-                                            <span class=" font-bold">7</span>
-                                        </div>
-                                        <div></div>
-                                    </div>
-                                </p-card>
+                    <app-today></app-today>
+                </p-tabpanel>
+                <p-tabpanel value="1">
+                    <div class="flex flex-column md:flex-row md:align-items-center gap-4">
+                        <div>
+
+                            <label class="text-sm">Start Date</label><br />
+                            <div class="mt-1 flex flex-column md:flex-row md:align-items-center">
+                                <p-datepicker [(ngModel)]="startDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                                    [showIcon]="true" inputId="icondisplay" [readonlyInput]="true" />
+                                <!-- <p-button (onClick)="onSearchClicked()" class="mt-2 md:mt-0 md:ml-2" label="Search"></p-button> -->
+                            </div>
+                        </div>
+                        <div>
+
+                            <label class="text-sm">End Date</label><br />
+                            <div class="mt-1 flex flex-column md:flex-row md:align-items-center">
+                                <p-datepicker [(ngModel)]="endDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                                    [showIcon]="true" inputId="icondisplay" [readonlyInput]="true" />
                             </div>
                         </div>
 
                     </div>
 
+                    <div>
+
+                    </div>
+                    <p-button (onClick)="onSearchClicked()" class="mt-2 md:mt-0 md:ml-2" label="Search"></p-button>
 
                 </p-tabpanel>
-                <p-tabpanel value="1">
-                    <p class="m-0">
-                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                        laudantium, totam rem
-                        aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
-                        explicabo.
-                        Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
-                        consequuntur magni
-                        dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non
-                        numquam eius
-                        modi.
-                    </p>
+                <p-tabpanel value="2">
+                    <div>
+                        <p-button label="Add product" (onClick)="addProduct()" />
+                    </div>
                 </p-tabpanel>
             </p-tabpanels>
         </p-tabs>
-        <p-button label="Print" (onClick)="testPrint()" />
+        <p-button label="Print" (onClick)="printNow()" />
+        <p-dialog [(visible)]="displayAddProductDialog" header="Add Product" [closable]="false" [modal]="true"
+            [style]="{width: '400px'}">
+            <form [formGroup]="addProductForm">
+                <div class="flex flex-column gap-4">
+                    <div>
+
+                        <p-floatlabel variant="in">
+                            <input pInputText id="Product name" autocomplete="off" formControlName="productName" />
+                            <label for="in_label">Product name</label>
+                        </p-floatlabel>
+                    </div>
+                    <div>
+                        <p-floatlabel variant="in">
+                            <input pInputText id="Product description" autocomplete="off"
+                                formControlName="description" />
+                            <label for="in_label">Product description</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <!-- <p-floatlabel variant="in">
+                        <input pInputText id="in_label"  autocomplete="off" />
+                        <label for="in_label">In Label</label>
+                    </p-floatlabel>
+                    
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">On Label</label>
+                    </p-floatlabel>
+
+
+                    <div class="p-float-label">
+                        <input pInputText id="in_label" autocomplete="off" />
+                        <label for="in_label">In Label</label>
+                    </div> -->
+                    <!-- <label for="productName">Product Name</label>
+                    <input id="productName" type="text" pInputText formControlName="productName" />
+                    <small *ngIf="addProductForm.get('productName')?.invalid && addProductForm.get('productName')?.touched" class="p-error">
+                        Product Name is required.
+                    </small> -->
+                </div>
+                <!-- <div class="field">
+                    <label for="description">Description</label>
+                    <input id="description" type="text" pInputText formControlName="description" />
+                </div> -->
+            </form>
+            <ng-template pTemplate="footer">
+                <button pButton label="Close" class="p-button-secondary" (click)="closeAddProductDialog()"></button>
+                <button pButton label="Confirm" class="p-button-success" [disabled]="addProductForm.invalid"
+                    (click)="onConfirmAddProduct()"></button>
+            </ng-template>
+        </p-dialog>
     </div>
 </div>

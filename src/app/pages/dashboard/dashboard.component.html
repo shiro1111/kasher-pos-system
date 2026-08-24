@@ -13,7 +13,7 @@
                     <div class="py-4">
                         <label class="text-lg font-light">Menu</label>
                         <!-- <app-card-package-box ></app-card-package-box> -->
-                        <app-card-product [productList]="productList"></app-card-product>
+                        <app-card-product [productItems]="productItems" [productList]="productList"></app-card-product>
 
                     </div>
                 </div>
@@ -53,13 +53,17 @@
                 </div>
                 <div class="mt-3">
                     <label class="font-light text-xs">Payment method</label><br>
-                    <label class="font-bold text-base">{{cart?.paymentMethod| uppercase}}</label>
+                    <label class="font-bold text-base">{{cart?.paymentMethod | uppercase}}</label>
                 </div>
                 <div class="mt-3" *ngIf="cart?.packaging?.length"> 
                     <label class="font-light text-xs">Packaging</label><br>
                     <div *ngFor="let item of cart?.packaging">
                         <label class="font-bold text-base">{{item.name }}</label>
                     </div>
+                </div>
+                <div class="flex items-center gap-2 justify-center mt-3">
+                    <p-checkbox [(ngModel)]="isPrintReciept" [binary]="true" inputId="indeterminate-checkbox" />
+                    <label pLabel for="indeterminate-checkbox" class="text-sm">Print receipt</label>
                 </div>
             </div>
 

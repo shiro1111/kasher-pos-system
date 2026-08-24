@@ -20,6 +20,14 @@ export class StaffService {
 
   setActiveStaff(staff: Staff) {
     this._activeStaff.next(staff);
+    this.storageService.saveToStorageByKey('activeStaff', staff); // Store in local storage
+  }
+
+  initializeActiveStaff() {
+    const storedStaff = this.storageService.getFromStorageByKey('activeStaff');
+    if (storedStaff) {
+      this._activeStaff.next(storedStaff);
+    }
   }
 
   getStaffList(): Observable<any> {

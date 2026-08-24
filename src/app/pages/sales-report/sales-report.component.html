@@ -215,14 +215,44 @@
                                 <small class="text-xs font-bold">Payment method</small>
                                 <div class="text-sm">{{ item.paymentMethod }}</div>
                             </div>
+                            <div class="col-6 sm:col-12" *ngIf="item.products">
+                                <small class="text-xs font-bold">Product</small>
+                                <div class="text-xs" *ngFor="let product of item.products"
+                                    (click)="onProducListClicked(item)" ngClass="cursor-pointer">
+                                    {{product.name}}
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </ng-container>
             </div>
         </div>
     </div>
 
+    <p-dialog [(visible)]="isProductListDialogVisible" [modal]="true"
+        [style]="{ width: '30rem' }">
+        <div>
+            <div *ngIf="productItemDetails">
+                <div *ngFor="let product of productItemDetails" class="mb-3">
 
+                    <div>
+                        <label class="font-bold">{{product.name}}</label>
+                    </div>
+                    <div *ngFor="let item of product.productItems">
+                        <ul>
+                            <li>{{item.productName}}<i *ngIf="item.isPremium" class="pi pi-star-fill" style="margin-left:5px; font-size: 1rem"></i></li>
 
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Close" class="p-button-outlined" (click)="closeProductListDialog()"></p-button>
+        </ng-template>
+    </p-dialog>
 
 </div>

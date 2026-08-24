@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4001",
+    "start:global": "ng serve --host 0.0.0.0 --disable-host-check --port 4000",
     "build": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -21,6 +22,8 @@
     "@angular/service-worker": "^18.2.0",
     "@primeng/themes": "^18.0.0",
     "@supabase/supabase-js": "^2.53.0",
+    "jspdf": "^3.0.4",
+    "pako": "^3.0.1",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^18.0.0",
@@ -33,6 +36,7 @@
     "@angular/cli": "^18.2.20",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "~5.1.0",
+    "@types/pako": "^2.0.4",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

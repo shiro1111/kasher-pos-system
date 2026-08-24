@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../apis/api.service';
 import { Product, SBResponse } from '../interfaces/interface';
 import { StorageService } from './storage.service';
-import { PACKAGING_LIST_KEY, PRODUCT_LIST_KEY } from '../constants/constanst';
+import { PACKAGING_LIST_KEY, PRODUCT_ITEMS_KEY, PRODUCT_LIST_KEY } from '../constants/constanst';
 import { Observable, of, tap } from 'rxjs';
 
 @Injectable({
@@ -31,6 +31,21 @@ export class DashboardService {
         return;
       })
     );
+  }
+
+  getProductItems(): Observable<any> {
+    const cache = this.storageService.getFromStorageByKey(PRODUCT_ITEMS_KEY) as SBResponse;
+    if (cache) {
+      return of(cache);
+    }
+    return this.apiService.getAllProductItems().pipe(
+      tap(res => {
+        if (res) {
+          this.storageService.saveToStorageByKey(PRODUCT_ITEMS_KEY, res);
+          return res
+        }
+      })
+    )
   }
 
   getPackaging(): Observable<any> {
