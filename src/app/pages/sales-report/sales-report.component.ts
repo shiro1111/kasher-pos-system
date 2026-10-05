@@ -64,8 +64,6 @@ export class SalesReportComponent {
   getProductList() {
     this.dashboardService.getAllProducts().subscribe(res => {
       this.productsList = res.data;
-      console.log('productsList: ', this.productsList);
-
     })
   }
 
@@ -103,8 +101,6 @@ export class SalesReportComponent {
   }
 
   check() {
-    console.log('paymentSummary: ', this.paymentSummary);
-
   }
 
   getCardTotalSale(item: any) {
@@ -132,10 +128,10 @@ export class SalesReportComponent {
 
       const productIds: number[] = (sale.productsId.split(",").map((id: string) => Number(id.trim())));
 
-      // Find matching products for each ID
-      const saleProducts = productIds.map((pid: any) =>
-        products.find(prod => prod.id === pid)
-      );
+      // Find matching products for each ID; drop unmatched ids (deleted/missing products)
+      const saleProducts = productIds
+        .map((pid: number) => products.find(prod => prod.id === pid))
+        .filter((p): p is Product => !!p);
 
       return {
         ...sale,
@@ -171,10 +167,8 @@ export class SalesReportComponent {
         this.dashboardService.getAllProducts(),
       ]).subscribe({
         next: ([salesReport, products]) => {
-          console.log('salesReport: ', salesReport);
           // console.log('product: ' , this.findProductByProductId((salesReport.data)));
           const product = this.findProductByProductId((salesReport.data))
-          console.log('productX: ', product);
 
           // this.salesReport = salesReport.data;
           this.salesReport = this.mergeSalesRecordAndProducts(salesReport.data, products.data);
@@ -186,12 +180,8 @@ export class SalesReportComponent {
           const mergedRecord = this.mergeSalesRecordAndProducts(this.salesReport, products.data);
 
           this.summarizeSalesReport = this.summarizeSales(mergedRecord);
-          console.log('summrize sales report: ' ,  this.summarizeSalesReport);
-          
           this.summarizeTotalSoldProducts = this.getSummaryTotalSoldProducts();
-          console.log('summarizeTotalSoldProducts: ', this.summarizeTotalSoldProducts);
           this.onChangePaymentTab(this.currentPaymentTab);
-          console.log('sales report; ', this.salesReport);
 
         }
       })
@@ -216,7 +206,6 @@ export class SalesReportComponent {
           const product = this.getProductDetailById(pid);
           productList.push(product);
         })
-        console.log('productlist: ', productList);
         return {
           ...d,
           products: productList
@@ -228,9 +217,6 @@ export class SalesReportComponent {
     return [];
     // const id = productId.split(',').map((pid: string) => Number(pid.trim()));
     // console.log('id: ' , id);
-    console.log('new data: ', data);
-
-
   }
 
   summarizeSalesReport: any[] = [];
@@ -308,8 +294,6 @@ export class SalesReportComponent {
               productItems: itemName
             }
             this.productItemDetails.push(detail);
-            console.log('productItemDetails: ' , this.productItemDetails);
-            
           }
         });
       }
