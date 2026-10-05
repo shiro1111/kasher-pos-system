@@ -222,6 +222,28 @@ export class ApiService {
     )
   }
 
+  getSalesReportByStaffRange(staff: Staff, dateFrom: Date, dateTo: Date): Observable<SBResponse> {
+    const startDate = new Date(Date.UTC(
+      dateFrom.getFullYear(),
+      dateFrom.getMonth(),
+      dateFrom.getDate(),
+      0, 0, 0, 0
+    ));
+
+    // start of day after dateTo → inclusive end date
+    const endDate = new Date(Date.UTC(
+      dateTo.getFullYear(),
+      dateTo.getMonth(),
+      dateTo.getDate() + 1,
+      0, 0, 0, 0
+    ));
+    return from(
+      this.supabaseService.getSalesReportByStaff(staff, startDate, endDate).then(res => {
+        return this.convertResToCamelCase(res);
+      })
+    )
+  }
+
   addNewSalesRecord(cart: Cart, stringId: string): Observable<any> {
     return from(
       this.supabaseService.addNewSalesRecord(cart, stringId).then(res => {

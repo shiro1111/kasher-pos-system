@@ -144,7 +144,7 @@ export class DashboardComponent {
       .pipe(take(1))
       .subscribe({
         next: (success: any) => {
-          
+
           this.loadingConfirmPayment = false;
           if (!success) {
             return this.alertService.showError(

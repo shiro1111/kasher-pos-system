@@ -1,16 +1,16 @@
-<div class="mx-4">
-    <div class="card">
-        <p-tabs value="0">
+<div class="mx-4 h-full flex flex-column">
+    <div class="card flex-1 min-h-0 flex flex-column">
+        <p-tabs value="0" class="flex-1 min-h-0 flex flex-column">
             <p-tablist>
-                <p-tab value="0">Today</p-tab>
-                <p-tab value="1">Records</p-tab>
-                <p-tab value="2">Configuration</p-tab>
+                <p-tab value="0">Summary</p-tab>
+                <p-tab value="1" *ngIf="isAdmin">Records</p-tab>
+                <p-tab value="2" *ngIf="isAdmin">Configuration</p-tab>
             </p-tablist>
             <p-tabpanels>
                 <p-tabpanel value="0">
                     <app-today></app-today>
                 </p-tabpanel>
-                <p-tabpanel value="1">
+                <p-tabpanel value="1" *ngIf="isAdmin">
                     <div class="flex flex-column md:flex-row md:align-items-center gap-4">
                         <div>
 
@@ -38,14 +38,15 @@
                     <p-button (onClick)="onSearchClicked()" class="mt-2 md:mt-0 md:ml-2" label="Search"></p-button>
 
                 </p-tabpanel>
-                <p-tabpanel value="2">
+                <p-tabpanel value="2" *ngIf="isAdmin">
                     <div>
                         <p-button label="Add product" (onClick)="addProduct()" />
                     </div>
                 </p-tabpanel>
             </p-tabpanels>
         </p-tabs>
-        <p-button label="Print" (onClick)="printNow()" />
+        <!-- Print button - used later -->
+        <!-- <p-button label="Print" (onClick)="printNow()" /> -->
         <p-dialog [(visible)]="displayAddProductDialog" header="Add Product" [closable]="false" [modal]="true"
             [style]="{width: '400px'}">
             <form [formGroup]="addProductForm">

@@ -1,16 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { PasswordModule } from 'primeng/password';
 import { SideNavStatus, Staff } from '../../../core/interfaces/interface';
 import { StaffService } from '../../../core/services/staff.service';
-import { ApiService } from '../../../core/apis/api.service';
+import { AlertService } from '../../../core/services/alert.service';
 import { ACTIVE_STAFF } from '../../../core/constants/constanst';
 
 @Component({
   selector: 'app-sidenav',
   standalone: true,
-  imports: [ButtonModule, CommonModule],
+  imports: [ButtonModule, CommonModule, DialogModule, PasswordModule, FormsModule],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss'
 })
@@ -29,7 +32,10 @@ export class SidenavComponent {
 
   currentActiveRoute = '';
   currentSelectedStaff: string | null = null;
-  constructor(private router: Router, private staffService: StaffService) {
+  showAdminPasswordDialog: boolean = false;
+  adminPassword: string = '';
+  pendingAdminStaff: Staff | null = null;
+  constructor(private router: Router, private staffService: StaffService, private alertService: AlertService) {
     this.router.events.subscribe(() => {
       const urlSegments = this.router.url.split('/');
       this.currentActiveRoute = urlSegments[urlSegments.length - 1];
@@ -42,7 +48,6 @@ export class SidenavComponent {
   }
   getStaffList() {
     this.staffService.getStaffList().subscribe(res => {
-      console.log('res from staff service: ', res);
       if (res) {
         this.staffList = res.data;
       }
@@ -50,14 +55,38 @@ export class SidenavComponent {
   }
 
   onStaffClicked(staff: Staff) {
-    if (staff.staffId != this.currentSelectedStaff) {
-      console.log('trig');
-      
-      this.currentSelectedStaff = staff.staffId;
-      this.staffService.setActiveStaff(staff);
-      sessionStorage.setItem(ACTIVE_STAFF, JSON.stringify(staff));
+    if (staff.staffId == this.currentSelectedStaff) {
+      return;
     }
+    // switching to admin requires password verification
+    if (staff.staffName?.toLowerCase() === 'admin') {
+      this.pendingAdminStaff = staff;
+      this.adminPassword = '';
+      this.showAdminPasswordDialog = true;
+      return;
+    }
+    this.applyStaffSwitch(staff);
+  }
 
+  applyStaffSwitch(staff: Staff) {
+    this.currentSelectedStaff = staff.staffId;
+    this.staffService.setActiveStaff(staff);
+    sessionStorage.setItem(ACTIVE_STAFF, JSON.stringify(staff));
+  }
+
+  verifyAdminPassword() {
+    if (this.pendingAdminStaff && this.pendingAdminStaff.password === this.adminPassword) {
+      this.applyStaffSwitch(this.pendingAdminStaff);
+      this.closeAdminPasswordDialog();
+    } else {
+      this.alertService.showError('Wrong password. Please try again.');
+    }
+  }
+
+  closeAdminPasswordDialog() {
+    this.showAdminPasswordDialog = false;
+    this.adminPassword = '';
+    this.pendingAdminStaff = null;
   }
 
   getActiveStaffFromStorage() {
@@ -70,7 +99,6 @@ export class SidenavComponent {
   }
 
   onMenuClicked(menu: any) {
-    console.log('item: ', menu);
     this.router.navigate([`/home/${menu.url}`])
 
   }

@@ -1,63 +1,53 @@
-<div class="grid">
-    <div class="col-9">
-        <div class="grid">
-            <div class="col-12 sm:col-4" *ngFor="let sale of salesProductItems">
-                <div class="box-shadow p-4 mb-4">
-                    <div class="flex justify-content-between">
-                        <div class="font-bold mb-3">{{ getProductName(sale) }}</div>
-                        <div class="text-xs">{{ sale.createdAt | date:'hh:mm:ss':'Asia/Kuala_Lumpur' }}</div>
-                    </div>
-
-                    <div class="flex justify-content-between mb-3">
-                        <div>
-                            <div class="text-sm mb-1" *ngFor="let detail of sale.itemDetail">
-                                <div>{{ detail.productName }}</div>
-                                <div *ngIf="detail.isPremium" class="font-italic">(Premium)</div>
-                            </div>
-                        </div>
-                        <div>
-                            <div>
-                                <small>Created by</small>
-                                <div>{{sale.createdBy}}</div>
-                            </div>
-                            <div>
-                                <small>Total price</small>
-                                <div>RM{{sale.totalPrice | number: '1.2-2'}}</div>
-                            </div>
-
-                        </div>
-                        <!-- 
-                        <div class="col-6">
-                        </div> -->
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-
+<div class="summary-page">
+    <!-- Header: title + date filter -->
+    <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
         <div>
-
+            <div class="text-2xl font-bold">Summary</div>
+            <div class="text-sm font-light muted mt-1">{{ selectedDate | date: 'dd/MM/yyyy (EEEE)' }}</div>
+        </div>
+        <div class="box-shadow p-3 bg-white border-round-2xl flex align-items-end gap-2 mt-3 md:mt-0">
+            <div class="filter-field">
+                <label class="text-xs font-light muted">Date</label>
+                <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                    [showIcon]="true" [readonlyInput]="true" appendTo="body" class="mt-1" />
+            </div>
+            <p-button (onClick)="onSearchClicked()" icon="pi pi-search" label="Search"></p-button>
         </div>
     </div>
 
-    <!-- <div class="grid">
-            <div class="col-4" *ngFor="let item of productItems">
-                <app-product-summary-record [product]="item"></app-product-summary-record>
+    <!-- Scrollable content below header -->
+    <div class="scroll-area">
+        <!-- Stats strip -->
+        <div class="flex flex-wrap gap-3 mb-4" *ngIf="todaySummary.length">
+            <div class="box-shadow p-3 bg-white border-round-2xl flex align-items-center gap-3 stat-card">
+                <div class="stat-icon"><span class="pi pi-shopping-bag"></span></div>
+                <div>
+                    <div class="text-xs font-light muted">Items sold</div>
+                    <div class="font-bold text-xl">{{ totalSold }}</div>
+                </div>
+            </div>
+            <div class="box-shadow p-3 bg-white border-round-2xl flex align-items-center gap-3 stat-card">
+                <div class="stat-icon"><span class="pi pi-list"></span></div>
+                <div>
+                    <div class="text-xs font-light muted">Product types</div>
+                    <div class="font-bold text-xl">{{ todaySummary.length }}</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Ranked list -->
+        <div class="box-shadow bg-white border-round-2xl p-4">
+            <div class="font-bold text-lg mb-3">Top selling</div>
+
+            <div *ngIf="!todaySummary.length" class="empty-state">
+                <i class="pi pi-inbox text-4xl muted"></i>
+                <div class="mt-2 font-light muted">No sales for this date</div>
             </div>
 
-        </div> -->
-
-    <div class="col-3 primary-background">
-        <div class="p-4 " >
-            <label class="font-bold text-2xl">Summary</label>
-            <div class="mt-4">
-                <div *ngFor="let item of todaySummary" class="mt-2">
-                    <label class="text-md">{{item.name}}: </label>
-                    <label class="font-bold text-md">{{item.sold}}</label>
-                </div>
+            <div *ngFor="let item of todaySummary; let i = index" class="summary-row">
+                <div class="rank-badge" [ngClass]="{ 'rank-top': i < 3 }">{{ i + 1 }}</div>
+                <div class="flex-1 font-medium">{{ item.name }}</div>
+                <div class="sold-badge">{{ item.sold }} sold</div>
             </div>
         </div>
     </div>

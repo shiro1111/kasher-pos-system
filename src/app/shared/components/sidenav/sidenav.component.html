@@ -35,3 +35,16 @@
 
     </div>
 </div>
+
+<p-dialog header="Admin verification" [modal]="true" [draggable]="false" [resizable]="false" appendTo="body"
+    [style]="{ width: '20rem' }" [(visible)]="showAdminPasswordDialog" (onHide)="closeAdminPasswordDialog()">
+    <div class="flex flex-column gap-2">
+        <label class="text-sm font-light">Enter admin password (4 characters)</label>
+        <p-password [(ngModel)]="adminPassword" [maxLength]="4" [feedback]="false" [toggleMask]="false"
+            styleClass="w-full" inputStyleClass="w-full" (onKeyUp.enter)="verifyAdminPassword()" />
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" severity="secondary" (click)="closeAdminPasswordDialog()" />
+        <p-button label="Confirm" (click)="verifyAdminPassword()" />
+    </ng-template>
+</p-dialog>

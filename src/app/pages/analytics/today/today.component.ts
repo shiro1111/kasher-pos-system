@@ -1,77 +1,50 @@
 import { Component } from '@angular/core';
-import { Card } from "primeng/card";
-import { PopoverModule } from 'primeng/popover';
 import { Button } from "primeng/button";
-import { InputNumber } from "primeng/inputnumber";
 import { FormsModule } from '@angular/forms';
-import { DividerModule } from 'primeng/divider';
-import { AccordionModule } from 'primeng/accordion';
-import { ProductSummaryRecordComponent } from './product-summary-record/product-summary-record.component';
+import { DatePickerModule } from 'primeng/datepicker';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { CommonModule } from '@angular/common';
-import { Item, Product, SalesProductItem } from '../../../core/interfaces/interface';
+import { SalesProductItem } from '../../../core/interfaces/interface';
 import { DashboardService } from '../../../core/services/dashboard.service';
+import { forkJoin } from 'rxjs';
 
-
-PopoverModule
 @Component({
   selector: 'app-today',
   standalone: true,
-  imports: [Card, CommonModule, PopoverModule, Button, InputNumber, FormsModule, ProductSummaryRecordComponent,
-    DividerModule, AccordionModule],
+  imports: [CommonModule, Button, FormsModule, DatePickerModule],
   templateUrl: './today.component.html',
   styleUrl: './today.component.scss'
 })
 export class TodayComponent {
-  stockCount: number = 0;
   productItems: any[] = [];
-  summary: any = {};
-  allProducts: Product[] = [];
   salesProductItems: SalesProductItem[] = [];
+  selectedDate: Date | undefined = new Date();
 
   constructor(private anaylticsService: AnalyticsService, private dashboardService: DashboardService) { }
 
 
   ngOnInit() {
-    this.getProductItem();
-    this.getProductSummary();
-    this.getProductDailyRecord();
-    this.getAllProduct();
-    this.getSalesProductItem();
-
-
+    this.loadSalesForSelectedDate();
   }
 
-  getProductItem() {
-    this.dashboardService.getProductItems().subscribe(res => {
-      if (res?.data?.length > 0) {
-        this.productItems = res.data;
+  onSearchClicked() {
+    this.loadSalesForSelectedDate();
+  }
+
+  loadSalesForSelectedDate() {
+    if (!this.selectedDate) {
+      return;
+    }
+    // forkJoin: catalog + sales together, no race on itemDetail mapping
+    forkJoin({
+      productItems: this.dashboardService.getProductItems(),
+      sales: this.anaylticsService.getSalesProductItem(this.selectedDate),
+    }).subscribe(({ productItems, sales }) => {
+      if (productItems?.data) {
+        this.productItems = productItems.data;
       }
-    })
-  }
-
-  getProductName(item: SalesProductItem) {
-    const name = this.allProducts.find(prod => prod.id == item.productId)?.name;
-    return name;
-  }
-
-  getAllProduct() {
-    this.dashboardService.getAllProducts().subscribe(res => {
-      console.log('All products', res);
-      if (res?.data?.length > 0) {
-        this.allProducts = res.data;
-      }
-    })
-  }
-
-  todaySummary: any[] = [];
-  getSalesProductItem() {
-    this.anaylticsService.getSalesProductItem().subscribe(res => {
-      if (res.data) {
-        this.salesProductItems = res.data;
-        console.log('salesProductItems: ', this.salesProductItems);
-
-        this.salesProductItems = this.salesProductItems.map(item => {
+      if (sales?.data) {
+        this.salesProductItems = sales.data.map((item: SalesProductItem) => {
           const itemIds = item?.itemIds
             ?.split(',')
             ?.map((id: string) => Number(id.trim()));
@@ -86,20 +59,24 @@ export class TodayComponent {
           };
         });
 
-        console.log('salesProductItem', this.salesProductItems);
-
         this.todaySummary = this.generateSummary(this.salesProductItems);
       }
-    })
+    });
+  }
+
+  todaySummary: any[] = [];
+
+  get totalSold(): number {
+    return this.todaySummary.reduce((sum, item) => sum + item.sold, 0);
   }
 
   generateSummary(data: any[]) {
     const summaryMap: any = {};
-  
+
     data.forEach(sale => {
       sale.itemDetail?.forEach((item: any) => {
         const name = item.productName.trim();  // clean spaces
-  
+
         if (!summaryMap[name]) {
           summaryMap[name] = 1;
         } else {
@@ -107,33 +84,16 @@ export class TodayComponent {
         }
       });
     });
-  
+
     // Convert to array
     const summaryArray = Object.keys(summaryMap).map(name => ({
       name,
       sold: summaryMap[name]
     }));
-  
+
     // Sort by top selling first
     summaryArray.sort((a, b) => b.sold - a.sold);
-  
+
     return summaryArray;
-  }
-  
-
-
-  getProductDailyRecord() {
-    this.anaylticsService.getProductDailyRecord().subscribe(res => {
-      console.log('Product daily record', res);
-    })
-  }
-
-  getProductSummary() {
-    this.anaylticsService.getProductSummary().subscribe(res => {
-      console.log('Product summary', res);
-      if (res?.data) {
-        this.summary = res.data[0];
-      }
-    })
   }
 }

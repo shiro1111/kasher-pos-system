@@ -28,12 +28,10 @@ export class AnalyticsService {
     return this.apiService.getProductSummary();
   }
 
-  getSalesProductItem(): Observable<any> {
-    const today = new Date();
+  getSalesProductItem(date: Date): Observable<any> {
+    const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
 
-    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
-
-    const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).toISOString();
 
     return this.apiService.getSalesProductItem(startDate, endDate );
   }

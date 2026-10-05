@@ -34,10 +34,21 @@ body, html {
     color: white;
 }
 
+/* datepicker input stretches full width, matches p-select look */
+p-datepicker {
+    display: block;
+    width: 100%;
+
+    input.p-inputtext {
+        width: 100%;
+    }
+}
+
 .scrollable-card-list {
-    max-height: 60vh;       
+    max-height: 60vh;
     overflow-y: auto;       /* vertical scrollbar */
     padding-right: 0.5rem;  /* space for scrollbar */
+    padding-bottom: 3rem;   /* last item not flush against scroll end */
   }
   
   .scrollable-card-list::-webkit-scrollbar {

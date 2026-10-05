@@ -34,11 +34,17 @@ export class SalesReportComponent {
   selectedStaffSummaryTab: string = '';
   selectedStaffSummaryReport: any = null;
   tabs: string[] = ['Overview', 'Individual'];
+  activeStaff: Staff | null = null;
   paymentTabs: string[] = ['All', 'Cash', 'QR'];
   selectedDate: Date | undefined = new Date();
   selectedIndividualDate: Date = new Date();
   staffList: Staff[] = [];
   selectedStaff!: Staff;
+  monitoringStaff!: Staff;
+  monitoringDateFrom: Date | undefined;
+  monitoringDateTo: Date | undefined;
+  monitoringReport: { date: Date; types: Record<string, number> }[] = [];
+  monitoringTypeTotals: Record<string, number> = {};
   individualReport: any[] = [];
   filteredPaymentMethod: any[] = [];
   salesReport: any[] = [];
@@ -46,6 +52,14 @@ export class SalesReportComponent {
   isProductListDialogVisible: boolean = false;
 
   ngOnInit() {
+    this.staffService.initializeActiveStaff();
+    this.staffService.activeStaff$.subscribe(staff => {
+      this.activeStaff = staff;
+      // Sales Monitoring visible only for admin staff
+      this.tabs = staff?.staffName?.toLowerCase() === 'admin'
+        ? ['Overview', 'Individual', 'Sales Monitoring']
+        : ['Overview', 'Individual'];
+    });
     this.getStaffList();
     this.getProductList();
     this.getAllProductItems();
@@ -85,6 +99,49 @@ export class SalesReportComponent {
         console.error('Failed to reload some data:', err);
       }
     })
+  }
+
+  onMonitoringSearchClicked() {
+    if (!this.monitoringStaff || !this.monitoringDateFrom || !this.monitoringDateTo) {
+      return;
+    }
+    forkJoin([
+      this.apiService.getSalesReportByStaffRange(this.monitoringStaff, this.monitoringDateFrom, this.monitoringDateTo),
+      this.dashboardService.getAllProducts(),
+    ]).subscribe({
+      next: ([salesReport, products]) => {
+        const merged = this.mergeSalesRecordAndProducts(salesReport.data || [], products.data || []);
+        this.buildMonitoringSummary(merged);
+      },
+      error: (err) => {
+        console.error('Failed to load monitoring report:', err);
+      }
+    });
+  }
+
+  private buildMonitoringSummary(transactions: any[]) {
+    const byDate: Record<string, Record<string, number>> = {};
+    const totals: Record<string, number> = {};
+
+    transactions.forEach(txn => {
+      const dateKey = txn.createdAt ? new Date(txn.createdAt).toDateString() : 'Unknown';
+      txn.products?.forEach((product: Product) => {
+        const type = product?.type;
+        if (!type) {
+          return;
+        }
+        // same counting rule as cardTotalDonut pipe: donut by itemQuantity, others by entry count
+        const qty = type === 'donut' ? product.itemQuantity || 0 : 1;
+        byDate[dateKey] ??= {};
+        byDate[dateKey][type] = (byDate[dateKey][type] ?? 0) + qty;
+        totals[type] = (totals[type] ?? 0) + qty;
+      });
+    });
+
+    this.monitoringReport = Object.entries(byDate)
+      .map(([date, types]) => ({ date: new Date(date), types }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    this.monitoringTypeTotals = totals;
   }
 
   onChangePaymentTab(tab: string) {

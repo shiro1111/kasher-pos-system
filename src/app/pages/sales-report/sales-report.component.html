@@ -12,7 +12,7 @@
         <p-select [options]="staffList" [(ngModel)]="selectedStaff" optionLabel="staffName" placeholder="Select staff"
             class="w-3" />
         <p-datepicker [(ngModel)]="selectedIndividualDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
-            [showIcon]="true" inputId="icondisplay" class="w-3 ml-3" />
+            [showIcon]="true" inputId="icondisplay" appendTo="body" class="w-3 ml-3" />
         <p-button [disabled]="!selectedStaff" (onClick)="onSearchIndividualClicked()" class="mx-3"
             label="Search"></p-button>
 
@@ -90,6 +90,56 @@
 
         </div>
     </div>
+    <div *ngIf="currentTab === 'Sales Monitoring'" class="grid mt-4">
+        <!-- Left: filters -->
+        <div class="col-12 md:col-4">
+            <label class="text-sm">Select staff</label>
+            <p-select [options]="staffList" [(ngModel)]="monitoringStaff" optionLabel="staffName"
+                placeholder="Select staff" class="w-full mt-1" />
+
+            <label class="text-sm mt-3">Date from</label>
+            <p-datepicker [(ngModel)]="monitoringDateFrom" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                [showIcon]="true" [readonlyInput]="true" styleClass="w-full" appendTo="body" class="w-full mt-1" />
+
+            <label class="text-sm mt-3">Date to</label>
+            <p-datepicker [(ngModel)]="monitoringDateTo" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                [showIcon]="true" [readonlyInput]="true" styleClass="w-full" appendTo="body" class="w-full mt-1" />
+
+            <p-button [disabled]="!monitoringStaff || !monitoringDateFrom || !monitoringDateTo"
+                (onClick)="onMonitoringSearchClicked()" class="mt-4" label="Search"></p-button>
+        </div>
+
+        <!-- Right: results -->
+        <div class="col-12 md:col-8">
+            <div *ngIf="monitoringReport.length">
+                <!-- Range totals per type (always visible) -->
+                <div class="mb-4">
+                    <div class="text-base font-bold mb-2">
+                        Total ({{ monitoringDateFrom | date: 'dd/MM/yyyy' }} - {{ monitoringDateTo | date: 'dd/MM/yyyy' }})
+                    </div>
+                    <div class="flex flex-wrap">
+                        <div *ngFor="let t of monitoringTypeTotals | keyvalue" class="mr-4 mb-2 box-shadow p-3 bg-white border-round-2xl">
+                            <div class="text-sm font-light">{{ t.key | titlecase }}</div>
+                            <div class="font-bold text-base">{{ t.value }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Per-date breakdown (scrollable) -->
+                <div class="scrollable-card-list">
+                    <div *ngFor="let day of monitoringReport" class="mb-3 box-shadow p-3 bg-white border-round-2xl">
+                        <div class="font-bold mb-2">{{ day.date | date: 'dd/MM/yyyy (EEEE)' }}</div>
+                        <div class="flex flex-wrap">
+                            <div *ngFor="let t of day.types | keyvalue" class="mr-4 mb-2">
+                                <div class="text-sm font-light">{{ t.key | titlecase }}</div>
+                                <div class="font-bold text-base">{{ t.value }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="overview-container">
 
         <div class="grid" *ngIf="currentTab === 'Overview'">
@@ -98,8 +148,8 @@
                 <div>
                     <label class="text-sm">Select Date</label><br />
                     <div class="mt-1 flex flex-column md:flex-row md:align-items-center">
-                        <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
-                            [showIcon]="true" inputId="icondisplay" [readonlyInput]="true" />
+                <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd/mm/yy" [iconDisplay]="'input'"
+                    [showIcon]="true" inputId="icondisplay" [readonlyInput]="true" appendTo="body" />
                         <p-button (onClick)="onSearchClicked()" class="mt-2 md:mt-0 md:ml-2" label="Search"></p-button>
                     </div>
                 </div>

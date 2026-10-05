@@ -15,6 +15,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ApiService } from '../../core/apis/api.service';
 import { jsPDF } from 'jspdf';
 import { PrintService } from '../../core/services/print.service';
+import { StaffService } from '../../core/services/staff.service';
+import { Staff } from '../../core/interfaces/interface';
 
 @Component({
   selector: 'app-analytics',
@@ -27,18 +29,23 @@ import { PrintService } from '../../core/services/print.service';
 export class AnalyticsComponent implements OnInit {
 
   constructor(private http: HttpClient, private fb: FormBuilder, private analyticsService: AnalyticsService,
-    private apiService: ApiService, private printService: PrintService) { }
+    private apiService: ApiService, private printService: PrintService, private staffService: StaffService) { }
   private bridgeUrl = 'http://localhost:3000/print';
 
   displayAddProductDialog = false;
   addProductForm!: FormGroup;
   startDate: Date | undefined = new Date();
   endDate: Date | undefined = new Date();
+  isAdmin: boolean = false;
 
   ngOnInit(): void {
     this.addProductForm = this.fb.group({
       productName: ['', Validators.required],
       description: ['']
+    });
+    this.staffService.initializeActiveStaff();
+    this.staffService.activeStaff$.subscribe((staff: Staff | null) => {
+      this.isAdmin = staff?.staffName?.toLowerCase() === 'admin';
     });
   }
 

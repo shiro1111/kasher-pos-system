@@ -8,4 +8,30 @@
 #printable { border: 1px dashed black; }
 .line { border-top: 1px solid black; margin: 2mm 0; }
 
-body { font-family: monospace; font-size: 14px; }
+/* height chain: layout -> analytics -> tabs -> today component */
+:host {
+    height: 100%;
+    display: block;
+}
+
+:host ::ng-deep .p-tabs {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+:host ::ng-deep .p-tablist {
+    flex-shrink: 0;
+}
+
+:host ::ng-deep .p-tabpanels {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+:host ::ng-deep .p-tabpanel {
+    height: 100%;
+    overflow: hidden;
+}
